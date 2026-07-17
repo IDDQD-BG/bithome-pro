@@ -2,6 +2,8 @@ const BitHome = (() => {
   const AUTH_KEY = 'bithome_token';
   const USER_KEY = 'bithome_user';
 
+  let _supabaseUrl = '';
+
   const API = (function(){
     const custom = localStorage.getItem('bithome_api_url');
     if (custom) return custom;
@@ -391,6 +393,47 @@ const BitHome = (() => {
     }
   }
 
+  async function fetchConfig() {
+    try {
+      const res = await fetch(API + '/api/auth/config');
+      if (res.ok) { const d = await res.json(); _supabaseUrl = d.supabaseUrl || ''; }
+    } catch(e) { log('Config fetch failed:', e); }
+  }
+
+  async function _handleOAuthCallback() {
+    const hash = window.location.hash;
+    if (!hash || !hash.includes('access_token')) return false;
+    const params = new URLSearchParams(hash.substring(1));
+    const accessToken = params.get('access_token');
+    const type = params.get('type');
+    if (!accessToken || type !== 'oauth') return false;
+    window.location.hash = '';
+    history.replaceState(null, '', window.location.pathname);
+    try {
+      const res = await fetch(API + '/api/auth/google-login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ access_token: accessToken })
+      });
+      const data = await res.json();
+      if (!res.ok) { showToast(data.error || 'Google login failed', 'error'); return true; }
+      setToken(data.token); setStoredUser(data.user);
+      state.authenticated = true; state.user = data.user;
+      updateNavUser(data.user);
+      showToast('Welcome, ' + data.user.username, 'success');
+      if (data.user && data.user.email_verified === false) startAutoVerify(data.user.email);
+    } catch(e) { showToast('Google login error: ' + e.message, 'error'); }
+    return true;
+  }
+
+  function loginWithGoogle() {
+    if (!_supabaseUrl) { showToast('Google login not configured', 'error'); return; }
+    const ref = _supabaseUrl.replace('https://', '').split('.')[0];
+    const redirectTo = location.origin;
+    const url = `https://${ref}.supabase.co/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(redirectTo)}`;
+    sessionStorage.setItem('bithome_pre_oauth', window.location.href);
+    window.location.href = url;
+  }
+
   function checkLocalModules() {
     document.querySelectorAll('.module-card').forEach(card => {
       const key = card.dataset.module;
@@ -499,7 +542,9 @@ const BitHome = (() => {
     }
   }
 
-  function init() {
+  async function init() {
+    await fetchConfig();
+    const hadOAuth = await _handleOAuthCallback();
     loadState();
     initModuleCards();
     initNavigation();
@@ -510,7 +555,7 @@ const BitHome = (() => {
       updateNavUser(state.user);
       if (state.user && state.user.email_verified === false) startAutoVerify(state.user.email);
     }
-    checkLocalModules();
+    if (!hadOAuth) checkLocalModules();
     log('BitHome Portal initialized');
     log('Authenticated:', state.authenticated, state.user);
   }
@@ -526,7 +571,7 @@ const BitHome = (() => {
     auth: {
       show: showAuth, hide: hideAuth,
       doLogin, doRegister, doLogout,
-      resendVerification,
+      resendVerification, loginWithGoogle,
       switchTab, check: isAuthenticated,
       onAuthChange, getUser: () => state.user,
     },
