@@ -215,11 +215,32 @@ const BitHome = (() => {
     if (directUrl) {
       html += '<br><a href="' + directUrl + '" target="_blank" style="display:inline-block;background:var(--accent);color:#000;padding:8px 16px;border-radius:6px;margin-top:8px;text-decoration:none;font:700 11px/1 Orbitron,sans-serif;letter-spacing:0.08em;">✓ VERIFY NOW</a>';
     }
+    html += '<br><button onclick="BitHome.auth.checkVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
+      'style="background:transparent;border:1px solid var(--green);color:var(--green);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">Check verification</button>';
     html += '<br><button onclick="BitHome.auth.resendVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
-      'style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">Resend</button>';
+      'style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;margin-top:4px;cursor:pointer;font:400 11px monospace;">Resend email</button>';
     banner.innerHTML = html;
     const authBox = document.getElementById('authBox');
     if (authBox) authBox.appendChild(banner);
+  }
+
+  async function checkVerification(email) {
+    try {
+      const res = await fetch(API + '/api/auth/check-verification', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (data.verified) {
+        showToast('✅ Email verified!', 'success');
+        const user = getStoredUser();
+        if (user) { user.email_verified = true; setStoredUser(user); state.user = user; updateAuthUI(user); }
+        const banner = document.getElementById('verifyBanner');
+        if (banner) banner.remove();
+      } else {
+        showToast(data.message || 'Not yet verified. Check your email and click the link first.', 'info');
+      }
+    } catch(e) { showToast('Network error', 'error'); }
   }
 
   async function resendVerification(email) {
@@ -482,7 +503,7 @@ const BitHome = (() => {
     auth: {
       show: showAuth, hide: hideAuth,
       doLogin, doRegister, doLogout,
-      resendVerification,
+      resendVerification, checkVerification,
       switchTab, check: isAuthenticated,
       onAuthChange, getUser: () => state.user,
     },
