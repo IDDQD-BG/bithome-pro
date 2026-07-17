@@ -1,0 +1,139 @@
+{
+  "sections": [
+    {
+      "id": "core",
+      "title": "🔬 Основни Модули",
+      "projects": [
+        {
+          "id": "explorer",
+          "icon": "🔍",
+          "title": "Bitcoin Hash Explorer",
+          "desc": "Интерактивен анализ на Bitcoin блокове, хешове и математически модели. Открийте Фибоначи, Ферма числа и астрономически константи в блокчейна.",
+          "tags": ["Interactive", "Realtime"],
+          "url": "bitcoin-hash-explorer.html",
+          "type": "local"
+        },
+        {
+          "id": "legitimator",
+          "icon": "🏛️",
+          "title": "Political Coliseum",
+          "desc": "Децентрализирана система за политическа легитимация и Течна демокрация (Liquid Democracy), изградена върху Nostr протокола.",
+          "tags": ["Nostr", "Democracy"],
+          "url": "https://iddqd-bg.github.io/legitimator/",
+          "type": "external"
+        },
+        {
+          "id": "learn",
+          "icon": "📚",
+          "title": "Learn Hub",
+          "desc": "Образователен водач към математическите концепции зад Bitcoin. Фибоначи, Ферма прости числа, Метоничен цикъл и Златното сечение.",
+          "tags": ["Educational", "Visual"],
+          "url": "https://iddqd-bg.github.io/learn/",
+          "type": "external"
+        },
+        {
+          "id": "geometry",
+          "icon": "🔷",
+          "title": "Абсолютната Геометрия",
+          "desc": "Визуализация на геометрическите структури, Силвестър генератор и Питагорови тройки. Откройте математическата хармония в пространството.",
+          "tags": ["3D Visualization", "Math"],
+          "url": "Абсолютната Геометрия — Станков.html",
+          "type": "local"
+        },
+        {
+          "id": "calendar",
+          "icon": "📅",
+          "title": "Астрономически Календар",
+          "desc": "Синхронизация между лунния и слънчевия календар. Метоничен цикъл, древни цивилизации и Bitcoin периодичност.",
+          "tags": ["Astronomy", "Cycles"],
+          "url": "calendar.html",
+          "type": "local"
+        },
+        {
+          "id": "ai",
+          "icon": "🧠",
+          "title": "AI Bridge",
+          "desc": "Невронни мрежи, които открива математически модели в Bitcoin данни. Синергия между изкуствения интелект и блокчейна.",
+          "tags": ["AI/ML", "Analysis"],
+          "url": "ai-genesis-core.html",
+          "type": "local"
+        },
+        {
+          "id": "research",
+          "icon": "📖",
+          "title": "Research Hub",
+          "desc": "Академични статии, AI тестове и математически доказателства. Пълна документация на откритията.",
+          "tags": ["Academic", "Papers"],
+          "url": "the-discovery.html",
+          "type": "local"
+        }
+      ]
+    },
+    {
+      "id": "new",
+      "title": "🧬 Нови Модули",
+      "projects": [
+        {
+          "id": "nano-miner",
+          "icon": "⛏️",
+          "title": "Nano Miner",
+          "desc": "Браузърен Bitcoin nano miner с реално време конзола, статистика и симулация на хеширане.",
+          "tags": ["Mining", "Simulator"],
+          "url": "nano-miner.html",
+          "type": "local"
+        },
+        {
+          "id": "tape-model",
+          "icon": "📼",
+          "title": "Genesis Tape Model",
+          "desc": "Интерактивен 3D модел на \"лентата\" на генезис блока. Визуализация на битовете като физическа лента.",
+          "tags": ["3D", "Canvas"],
+          "url": "genesis-tape-model.html",
+          "type": "local"
+        },
+        {
+          "id": "integrated-forge",
+          "icon": "⚒️",
+          "title": "Интегриран SaaS Двигател",
+          "desc": "SaaS платформа за недвижими имоти с Bitcoin плащания. Интеграция на обяви, карти и WebSocket чат.",
+          "tags": ["SaaS", "Real Estate"],
+          "url": "integrated-forge.html",
+          "type": "local"
+        }
+      ]
+    },
+    {
+      "id": "advanced",
+      "title": "⚙️ Специализирани Инструменти",
+      "projects": [
+        {
+          "id": "3d",
+          "icon": "🌀",
+          "title": "Genesis 3D Duality",
+          "desc": "3D визуализация на дуалността между Bitcoin генезис блока и астрономическата архитектура.",
+          "tags": ["3D", "WebGL"],
+          "url": "genesis_3d_duality_257.html",
+          "type": "local"
+        },
+        {
+          "id": "fermat",
+          "icon": "🔢",
+          "title": "Fermat Matrix",
+          "desc": "Матрица на Ферма простите числа и техните връзки с Bitcoin параметрите.",
+          "tags": ["Math", "Interactive"],
+          "url": "fermat-matrix.html",
+          "type": "local"
+        },
+        {
+          "id": "szh",
+          "icon": "🔐",
+          "title": "SZH Quantum Engine",
+          "desc": "Специализиран квантов двигател за криптографски анализ. Фрактална симетрия и квантови вычисления.",
+          "tags": ["Quantum", "Fractal"],
+          "url": "szh-quantum-engine.html",
+          "type": "local"
+        }
+      ]
+    }
+  ]
+}
