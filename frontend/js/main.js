@@ -345,6 +345,24 @@ const BitHome = (() => {
         if (moduleKey) { e.preventDefault(); openModule(moduleKey); }
       });
     });
+    document.querySelectorAll('.nav-dropdown-toggle').forEach(toggle => {
+      toggle.addEventListener('click', function(e) {
+        e.preventDefault();
+        const dd = this.closest('.nav-dropdown');
+        if (!dd) return;
+        const menu = dd.querySelector('.nav-dropdown-menu');
+        if (!menu) return;
+        const isOpen = menu.classList.contains('open');
+        closeAllDropdowns();
+        if (!isOpen) menu.classList.add('open');
+      });
+    });
+    document.addEventListener('click', function(e) {
+      if (!e.target.closest('.nav-dropdown')) closeAllDropdowns();
+    });
+  }
+  function closeAllDropdowns() {
+    document.querySelectorAll('.nav-dropdown-menu.open').forEach(m => m.classList.remove('open'));
   }
 
   function initKeyboardShortcuts() {
