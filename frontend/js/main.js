@@ -55,6 +55,8 @@ const BitHome = (() => {
     'teorema-geometria': 'teorema-geometria.html',
     'updates': 'updates.html',
     'legitimator': 'https://iddqd-bg.github.io/legitimator/',
+    'nostr-basics': 'nostr-basics.html',
+    'nostr-relay': 'nostr-relay-lab.html',
   };
 
   const state = {
