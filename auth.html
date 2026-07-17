@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BITHOME · Auth</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#0b0b12; --panel:#0d0f18; --border:#1c1c2d; --text:#e2e2f0; --muted:#747493; --accent:#f7931a; --blue:#00d4ff; --green:#7fff00; --red:#ff4466; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg); color: var(--text);
+      font: 400 13px/1.6 'Share Tech Mono', monospace;
+      display: flex; align-items: center; justify-content: center;
+      min-height: 100vh; padding: 20px;
+    }
+    .box {
+      background: var(--panel); border: 1px solid var(--border);
+      border-radius: 10px; padding: 32px 28px; width: 100%; max-width: 360px;
+    }
+    h2 { color: var(--accent); font: 900 18px/1 'Orbitron', sans-serif; text-align: center; margin-bottom: 24px; letter-spacing: 0.1em; }
+    .tabs { display: flex; gap: 0; margin-bottom: 20px; border: 1px solid var(--border); border-radius: 6px; overflow: hidden; }
+    .tabs button {
+      flex: 1; padding: 10px; background: transparent; color: var(--muted);
+      border: none; font: 700 11px 'Orbitron', sans-serif; cursor: pointer;
+      text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.2s;
+    }
+    .tabs button.active { background: var(--accent); color: #000; }
+    .form { display: none; }
+    .form.active { display: block; }
+    .form input {
+      width: 100%; padding: 11px 12px; margin-bottom: 12px;
+      background: var(--bg); border: 1px solid var(--border);
+      color: var(--text); border-radius: 6px; font: 400 13px 'Share Tech Mono', monospace;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form input:focus { border-color: var(--accent); }
+    .form button {
+      width: 100%; padding: 11px; margin-top: 4px;
+      background: var(--accent); border: none; color: #000;
+      font: 700 13px 'Orbitron', sans-serif; cursor: pointer;
+      border-radius: 6px; letter-spacing: 0.08em;
+      transition: background 0.2s;
+    }
+    .form button:hover { background: #ffaa33; }
+    .form button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .error { color: var(--red); font-size: 11px; margin-bottom: 10px; display: none; }
+    .success { color: var(--green); font-size: 11px; margin-bottom: 10px; display: none; }
+    .logged-in { display: none; text-align: center; }
+    .logged-in.active { display: block; }
+    .logged-in .username { color: var(--accent); font-size: 16px; font-family: 'Orbitron', sans-serif; margin-bottom: 4px; }
+    .logged-in .badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 10px; font-family: 'Orbitron', sans-serif; margin-bottom: 16px; }
+    .badge-free { border: 1px solid var(--border); color: var(--muted); }
+    .badge-pro { border: 1px solid var(--green); color: var(--green); }
+    .logout-btn { background: transparent; border: 1px solid var(--border); color: var(--muted); padding: 8px 20px; border-radius: 6px; cursor: pointer; font: 400 11px 'Share Tech Mono', monospace; }
+    .logout-btn:hover { border-color: var(--red); color: var(--red); }
+    .note { font-size: 11px; color: var(--muted); text-align: center; margin-top: 14px; line-height: 1.5; }
+  </style>
+</head>
+<body>
+  <div class="box" id="app">
+    <!-- Login / Register tabs -->
+    <h2>AUTHORIZE</h2>
+    <div class="tabs">
+      <button id="tabLogin" class="active" onclick="switchTab('login')">Login</button>
+      <button id="tabRegister" onclick="switchTab('register')">Register</button>
+    </div>
+
+    <!-- Login form -->
+    <div id="formLogin" class="form active">
+      <div id="loginError" class="error"></div>
+      <div id="loginSuccess" class="success"></div>
+      <input id="loginEmail" type="email" placeholder="Email" autocomplete="email">
+      <input id="loginPassword" type="password" placeholder="Password" autocomplete="current-password">
+      <button id="loginBtn" onclick="doLogin()">LOGIN</button>
+    </div>
+
+    <!-- Register form -->
+    <div id="formRegister" class="form">
+      <div id="registerError" class="error"></div>
+      <input id="regEmail" type="email" placeholder="Email" autocomplete="email">
+      <input id="regUsername" type="text" placeholder="Username" autocomplete="username">
+      <input id="regPassword" type="password" placeholder="Password" autocomplete="new-password">
+      <input id="regConfirm" type="password" placeholder="Confirm password">
+      <button id="registerBtn" onclick="doRegister()">REGISTER</button>
+    </div>
+
+    <!-- Logged in state -->
+    <div id="loggedIn" class="logged-in">
+      <div class="username" id="displayUsername">—</div>
+      <div><span class="badge badge-free" id="displayBadge">FREE</span></div>
+      <button class="logout-btn" onclick="doLogout()">LOGOUT</button>
+    </div>
+
+    <div class="note">Създайте акаунт за достъп до портала и PRO функциите.</div>
+  </div>
+
+  <script>
+    const API = (function(){
+      const custom = localStorage.getItem('bithome_api_url');
+      if (custom) return custom;
+      if (location.origin.includes('localhost') || location.origin.includes('127.0.0.1')) return 'http://localhost:5000';
+      return 'https://bithome-api.vercel.app';
+    })();
+
+    function getToken() { return localStorage.getItem('bithome_token'); }
+    function setToken(t) { if (t) localStorage.setItem('bithome_token', t); else localStorage.removeItem('bithome_token'); }
+    function getUser() { try { return JSON.parse(localStorage.getItem('bithome_user')); } catch(e) { return null; } }
+    function setUser(u) { if (u) localStorage.setItem('bithome_user', JSON.stringify(u)); else localStorage.removeItem('bithome_user'); }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+      document.getElementById('form' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+      document.getElementById(tab + 'Error').style.display = 'none';
+      document.getElementById(tab + 'Success').style.display = 'none';
+    }
+
+    function showError(form, msg) { const el = document.getElementById(form + 'Error'); el.textContent = msg; el.style.display = 'block'; }
+    function showSuccess(form, msg) { const el = document.getElementById(form + 'Success'); el.textContent = msg; el.style.display = 'block'; }
+    function hideError(form) { document.getElementById(form + 'Error').style.display = 'none'; }
+
+    async function doLogin() {
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      if (!email || !password) { showError('login', 'Fill in all fields'); return; }
+      hideError('login');
+      document.getElementById('loginBtn').disabled = true;
+
+      try {
+        const res = await fetch(API + '/api/auth/login', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('login', data.error); document.getElementById('loginBtn').disabled = false; return; }
+        setToken(data.token);
+        setUser(data.user);
+        showLoggedIn(data.user);
+        showSuccess('login', 'Login successful');
+        if (window.parent && window.parent.BitHome) {
+          window.parent.BitHome.auth.onAuthChange(data.user);
+        }
+      } catch(e) {
+        showError('login', 'Connection error: ' + e.message);
+      }
+      document.getElementById('loginBtn').disabled = false;
+    }
+
+    async function doRegister() {
+      const email = document.getElementById('regEmail').value.trim();
+      const username = document.getElementById('regUsername').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+
+      if (!email || !username || !password || !confirm) { showError('register', 'Fill in all fields'); return; }
+      if (password !== confirm) { showError('register', 'Passwords do not match'); return; }
+      if (password.length < 6) { showError('register', 'Password must be at least 6 characters'); return; }
+      hideError('register');
+      document.getElementById('registerBtn').disabled = true;
+
+      try {
+        const res = await fetch(API + '/api/auth/register', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, username, password })
+        });
+        const data = await res.json();
+        if (!res.ok) { showError('register', data.error); document.getElementById('registerBtn').disabled = false; return; }
+        setToken(data.token);
+        setUser(data.user);
+        showLoggedIn(data.user);
+        if (window.parent && window.parent.BitHome) {
+          window.parent.BitHome.auth.onAuthChange(data.user);
+        }
+      } catch(e) {
+        showError('register', 'Connection error: ' + e.message);
+      }
+      document.getElementById('registerBtn').disabled = false;
+    }
+
+    function showLoggedIn(user) {
+      document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+      document.querySelectorAll('.tabs').forEach(t => t.style.display = 'none');
+      document.getElementById('loggedIn').classList.add('active');
+      document.getElementById('displayUsername').textContent = user.username;
+      const badge = document.getElementById('displayBadge');
+      if (user.is_pro) {
+        badge.textContent = 'PRO';
+        badge.className = 'badge badge-pro';
+      } else {
+        badge.textContent = 'FREE';
+        badge.className = 'badge badge-free';
+      }
+    }
+
+    function doLogout() {
+      setToken(null);
+      setUser(null);
+      document.getElementById('loggedIn').classList.remove('active');
+      document.querySelectorAll('.tabs').forEach(t => t.style.display = 'flex');
+      document.getElementById('formLogin').classList.add('active');
+      if (window.parent && window.parent.BitHome) {
+        window.parent.BitHome.auth.onAuthChange(null);
+      }
+    }
+
+    // Check if already logged in
+    const token = getToken();
+    const user = getUser();
+    if (token && user) {
+      showLoggedIn(user);
+    }
+  </script>
+</body>
+</html>

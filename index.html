@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<!-- saved from url=(0031)https://bithome.pro/portal.html -->
+<html lang="bg"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BitHome Portal · Астрономическата Архитектура на Bitcoin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #050508;
+      --panel: #0b0b12;
+      --panel-light: #12121f;
+      --border: #1c1c2d;
+      --text: #e2e2f0;
+      --muted: #747493;
+      --accent: #f7931a;
+      --accent-rgba: rgba(247, 147, 26, 0.1);
+      --blue: #00d4ff;
+      --green: #7fff00;
+      --gold: #ffd166;
+      --purple: #c77dff;
+      --red: #ff4466;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font: 400 14px/1.7 'Share Tech Mono', monospace;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: linear-gradient(rgba(28,28,45,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(28,28,45,0.15) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .container { max-width: 1400px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(5,5,8,0.8);
+      backdrop-filter: blur(10px);
+      position: sticky; top: 0; z-index: 100;
+      padding: 16px 0;
+    }
+    .header-content { display: flex; align-items: center; gap: 24px; }
+    .logo {
+      font: 900 22px/1 'Orbitron', sans-serif;
+      letter-spacing: 0.12em;
+      color: var(--accent);
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+      flex: 1;
+      overflow-x: auto;
+      padding: 4px 0;
+    }
+    .nav::-webkit-scrollbar { height: 2px; }
+    .nav::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+    .nav a {
+      color: var(--muted);
+      text-decoration: none;
+      font: 400 10px/1 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: color 0.3s;
+      white-space: nowrap;
+      padding: 6px 0;
+    }
+    .nav a:hover, .nav a.active { color: var(--accent); }
+    main { padding: 48px 0 80px; }
+    .hero {
+      margin-bottom: 64px;
+      text-align: center;
+      padding: 0 20px;
+    }
+    .hero h1 {
+      font: 900 clamp(32px, 5vw, 56px)/1.1 'Orbitron', sans-serif;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--accent), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .hero p {
+      font-size: 13px;
+      color: var(--muted);
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+    .module-card {
+      background: linear-gradient(135deg, var(--panel), var(--panel-light));
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .module-card:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 24px rgba(247,147,26,0.12), inset 0 0 30px rgba(247,147,26,0.03);
+      transform: translateY(-3px);
+    }
+    .module-icon { font-size: 28px; line-height: 1; }
+    .module-title {
+      font: 700 14px/1.3 'Orbitron', sans-serif;
+      color: var(--accent);
+    }
+    .module-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      flex: 1;
+    }
+    .module-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+    .tag {
+      display: inline-block;
+      font: 400 9px/1 'Orbitron', sans-serif;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 3px 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+    .tag.blue { border-color: rgba(0,212,255,0.3); color: var(--blue); }
+    .tag.green { border-color: rgba(127,255,0,0.3); color: var(--green); }
+    .tag.gold { border-color: rgba(255,209,102,0.3); color: var(--gold); }
+    .section { margin-bottom: 48px; }
+    .section-title {
+      font: 900 18px/1 'Orbitron', sans-serif;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+    .insight-box {
+      background: rgba(0,212,255,0.04);
+      border: 1px solid rgba(0,212,255,0.15);
+      border-radius: 8px;
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
+    .insight-box h3 {
+      color: var(--blue);
+      font: 700 12px/1 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .insight-box p { font-size: 12px; color: var(--muted); line-height: 1.7; }
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 32px 0 20px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,5,8,0.92);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+    }
+    .modal.active { display: block; }
+    .modal-content {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      position: absolute;
+      inset: 24px;
+      overflow: hidden;
+    }
+    .modal-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0,0,0,0.7);
+      border: 1px solid var(--border);
+      color: var(--muted);
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 1001;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .modal-close:hover { color: var(--accent); border-color: var(--accent); }
+    @media (min-width: 1200px) {
+      .modal-content { inset: 40px; }
+    }
+    .auth-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(5,5,8,0.94);
+      backdrop-filter: blur(12px);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .auth-overlay.active { display: flex; }
+    .auth-box {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 36px 40px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+    }
+    .auth-box h2 {
+      color: var(--accent);
+      font: 900 18px/1 'Orbitron', sans-serif;
+      margin-bottom: 24px;
+      letter-spacing: 0.1em;
+    }
+    .auth-box input {
+      width: 100%;
+      padding: 12px;
+      margin: 8px 0 16px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 6px;
+      font: 400 13px 'Share Tech Mono', monospace;
+    }
+    .auth-box input:focus { border-color: var(--accent); outline: none; }
+    .auth-box button {
+      width: 100%;
+      padding: 12px;
+      background: var(--accent);
+      border: none;
+      color: #000;
+      font: 700 13px 'Orbitron', sans-serif;
+      cursor: pointer;
+      border-radius: 6px;
+      letter-spacing: 0.08em;
+      transition: background 0.2s;
+    }
+    .auth-box button:hover { background: #ffaa33; }
+    .auth-box .auth-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 16px;
+      line-height: 1.5;
+    }
+    .bithome-toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      z-index: 3000;
+      opacity: 0;
+      transition: all 0.3s ease;
+      font: 400 13px 'Share Tech Mono', monospace;
+      border: 1px solid;
+    }
+    .bithome-toast.visible { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .bithome-toast.success { background: rgba(127,255,0,0.12); border-color: rgba(127,255,0,0.25); color: var(--green); }
+    .bithome-toast.error { background: rgba(255,68,102,0.12); border-color: rgba(255,68,102,0.25); color: var(--red); }
+    .bithome-toast.info { background: rgba(0,212,255,0.12); border-color: rgba(0,212,255,0.25); color: var(--blue); }
+    iframe { width: 100%; height: 100%; border: none; display: block; }
+    @media (max-width: 768px) {
+      .modules-grid { grid-template-columns: 1fr; gap: 12px; }
+      .nav { gap: 12px; }
+      .nav a { font-size: 9px; }
+      .header-content { gap: 16px; }
+      .hero { margin-bottom: 40px; }
+      .section { margin-bottom: 32px; }
+      .modal-content { inset: 12px; }
+    }
+    @media (max-width: 480px) {
+      .logo { font-size: 18px; }
+      .header-content { flex-wrap: wrap; gap: 8px; }
+      .nav { order: 3; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container">
+      <div class="header-content">
+        <a href="https://bithome.pro/" class="logo">⚡ BITHOME</a>
+        <nav class="nav">
+          <a href="https://bithome.pro/" class="active">Portal</a>
+          <a href="#" data-module="explorer">Explorer</a>
+          <a href="#" data-module="learn">Learn</a>
+          <a href="#" data-module="geometry">Geometry</a>
+          <a href="#" data-module="calendar">Calendar</a>
+          <a href="#" data-module="ai">AI Bridge</a>
+          <a href="#" data-module="research">Research</a>
+          <a href="#" data-module="nano-miner" style="color:var(--green)">Nano Miner</a>
+          <a href="#" data-module="integrated-forge" style="color:var(--gold)">SaaS</a>
+          <a href="#" onclick="BitHome.auth.show();return false" style="color:var(--accent)">Login</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <!-- Hero Section -->
+      <div class="hero">
+        <h1>BitHome Portal</h1>
+        <p>Централизиран хъб за изследване на астрономическата архитектура на Bitcoin. Открийте как древната математика, невронните мрежи и блокчейна конвергират към универсални константи.</p>
+      </div>
+
+      <!-- Core Modules -->
+      <div class="section">
+        <h2 class="section-title">🔬 Основни Модули</h2>
+        <div class="modules-grid">
+          <a href="#" data-module="explorer" class="module-card">
+            <div class="module-icon">🔍</div>
+            <div class="module-title">Bitcoin Hash Explorer</div>
+            <div class="module-desc">Интерактивен анализ на Bitcoin блокове, хешове и математически модели. Открийте Фибоначи, Ферма числа и астрономически константи в блокчейна.</div>
+            <div class="module-meta">
+              <span class="tag blue">Interactive</span>
+              <span class="tag green">Realtime</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="learn" class="module-card">
+            <div class="module-icon">📚</div>
+            <div class="module-title">Learn Hub</div>
+            <div class="module-desc">Образователен водач към математическите концепции зад Bitcoin. Фибоначи, Ферма прости числа, Метоничен цикъл и Златното сечение.</div>
+            <div class="module-meta">
+              <span class="tag gold">Educational</span>
+              <span class="tag blue">Visual</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="geometry" class="module-card">
+            <div class="module-icon">🔷</div>
+            <div class="module-title">Абсолютната Геометрия</div>
+            <div class="module-desc">Визуализация на геометрическите структури, Силвестър генератор и Питагорови тройки. Откройте математическата хармония в пространството.</div>
+            <div class="module-meta">
+              <span class="tag blue">3D Visualization</span>
+              <span class="tag green">Math</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="calendar" class="module-card">
+            <div class="module-icon">📅</div>
+            <div class="module-title">Астрономически Календар</div>
+            <div class="module-desc">Синхронизация между лунния и слънчевия календар. Метоничен цикъл, древни цивилизации и Bitcoin периодичност.</div>
+            <div class="module-meta">
+              <span class="tag gold">Astronomy</span>
+              <span class="tag blue">Cycles</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="ai" class="module-card">
+            <div class="module-icon">🧠</div>
+            <div class="module-title">AI Bridge</div>
+            <div class="module-desc">Невронни мрежи, които открива математически модели в Bitcoin данни. Синергия между изкуствения интелект и блокчейна.</div>
+            <div class="module-meta">
+              <span class="tag green">AI/ML</span>
+              <span class="tag blue">Analysis</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="research" class="module-card">
+            <div class="module-icon">📖</div>
+            <div class="module-title">Research Hub</div>
+            <div class="module-desc">Академични статии, AI тестове и математически доказателства. Пълна документация на откритията.</div>
+            <div class="module-meta">
+              <span class="tag gold">Academic</span>
+              <span class="tag blue">Papers</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Newly Discovered Modules -->
+      <div class="section">
+        <h2 class="section-title">🧬 Нови Модули</h2>
+        <div class="modules-grid">
+          <a href="#" data-module="nano-miner" class="module-card">
+            <div class="module-icon">⛏️</div>
+            <div class="module-title">Nano Miner</div>
+            <div class="module-desc">Браузърен Bitcoin nano miner с реално време конзола, статистика и симулация на хеширане.</div>
+            <div class="module-meta">
+              <span class="tag green">Mining</span>
+              <span class="tag blue">Simulator</span>
+            </div>
+          </a>
+          <a href="#" data-module="tape-model" class="module-card">
+            <div class="module-icon">📼</div>
+            <div class="module-title">Genesis Tape Model</div>
+            <div class="module-desc">Интерактивен 3D модел на "лентата" на генезис блока. Визуализация на битовете като физическа лента.</div>
+            <div class="module-meta">
+              <span class="tag blue">3D</span>
+              <span class="tag green">Canvas</span>
+            </div>
+          </a>
+          <a href="#" data-module="tape-360" class="module-card">
+            <div class="module-icon">🔄</div>
+            <div class="module-title">Genesis Tape 360°</div>
+            <div class="module-desc">360-градусова ротация на Genesis Tape модела. Разгледайте структурата от всички ъгли.</div>
+            <div class="module-meta">
+              <span class="tag blue">3D</span>
+              <span class="tag gold">360°</span>
+            </div>
+          </a>
+          <a href="#" data-module="radial-merkle" class="module-card">
+            <div class="module-icon">🌐</div>
+            <div class="module-title">Radial Merkle Lab</div>
+            <div class="module-desc">Радиална визуализация на Merkle дървото с анимация на хешовете. Алтернативен изглед на блокчейна.</div>
+            <div class="module-meta">
+              <span class="tag blue">Visual</span>
+              <span class="tag green">Merkle</span>
+            </div>
+          </a>
+          <a href="#" data-module="time-anomalies" class="module-card">
+            <div class="module-icon">⏳</div>
+            <div class="module-title">Времеви Аномалии</div>
+            <div class="module-desc">Изследване на Endianness в Bitcoin протокола. Little vs Big endian, timestamp аномалии и блокчейн време.</div>
+            <div class="module-meta">
+              <span class="tag gold">Research</span>
+              <span class="tag blue">Endian</span>
+            </div>
+          </a>
+          <a href="#" data-module="decode-block0" class="module-card">
+            <div class="module-icon">🔓</div>
+            <div class="module-title">Разкодиране Блок 0</div>
+            <div class="module-desc">Пълно разкодиране на Bitcoin генезис транзакцията. Визуален анализ на всеки байт от Block 0.</div>
+            <div class="module-meta">
+              <span class="tag gold">Genesis</span>
+              <span class="tag blue">Analysis</span>
+            </div>
+          </a>
+          <a href="#" data-module="arch-satoshi" class="module-card">
+            <div class="module-icon">🏛️</div>
+            <div class="module-title">Архитектура на Satoshi</div>
+            <div class="module-desc">Астрономическата архитектура на Bitcoin според откритията на Станков. Пълният математически модел.</div>
+            <div class="module-meta">
+              <span class="tag gold">Theory</span>
+              <span class="tag blue">Architecture</span>
+            </div>
+          </a>
+          <a href="#" data-module="stankov-stat" class="module-card">
+            <div class="module-icon">📊</div>
+            <div class="module-title">Stankov Stat Test</div>
+            <div class="module-desc">Статистически тестове за откриване на математически модели в Bitcoin данни. Pareto разпределения и хистограми.</div>
+            <div class="module-meta">
+              <span class="tag green">Stats</span>
+              <span class="tag blue">Analysis</span>
+            </div>
+          </a>
+          <a href="#" data-module="ai-bridge-results" class="module-card">
+            <div class="module-icon">📈</div>
+            <div class="module-title">AI Bridge Results</div>
+            <div class="module-desc">Резултати от AI Bridge тестове. Сравнение на baseline срещу Stankov архитектура върху MNIST и FashionMNIST.</div>
+            <div class="module-meta">
+              <span class="tag green">AI/ML</span>
+              <span class="tag blue">Benchmark</span>
+            </div>
+          </a>
+          <a href="#" data-module="spirals" class="module-card">
+            <div class="module-icon">🌀</div>
+            <div class="module-title">Unified 3D Spirals</div>
+            <div class="module-desc">3D спирална геометрия на Bitcoin. Визуализация на Фибоначи, Ферма и други константи.</div>
+            <div class="module-meta">
+              <span class="tag blue">3D</span>
+              <span class="tag green">Math</span>
+            </div>
+          </a>
+          <a href="#" data-module="integrated-forge" class="module-card">
+            <div class="module-icon">⚒️</div>
+            <div class="module-title">Интегриран SaaS Двигател</div>
+            <div class="module-desc">SaaS платформа за недвижими имоти с Bitcoin плащания. Интеграция на обяви, карти и WebSocket чат.</div>
+            <div class="module-meta">
+              <span class="tag gold">SaaS</span>
+              <span class="tag green">Real Estate</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Advanced Modules -->
+      <div class="section">
+        <h2 class="section-title">⚙️ Специализирани Инструменти</h2>
+        <div class="modules-grid">
+          <a href="#" data-module="3d" class="module-card">
+            <div class="module-icon">🌀</div>
+            <div class="module-title">Genesis 3D Duality</div>
+            <div class="module-desc">3D визуализация на дуалността между Bitcoin генезис блока и астрономическата архитектура. Интерактивна спирална геометрия.</div>
+            <div class="module-meta">
+              <span class="tag blue">3D</span>
+              <span class="tag green">WebGL</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="born-ai" class="module-card">
+            <div class="module-icon">🤖</div>
+            <div class="module-title">Bitcoin Born AI</div>
+            <div class="module-desc">Теория за това как Bitcoin е роден с вградена AI структура. Анализ на кода, хешовете и математическите константи.</div>
+            <div class="module-meta">
+              <span class="tag green">Theory</span>
+              <span class="tag blue">Analysis</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="fermat" class="module-card">
+            <div class="module-icon">🔢</div>
+            <div class="module-title">Fermat Matrix</div>
+            <div class="module-desc">Матрица на Ферма простите числа и техните връзки с Bitcoin параметрите. Интерактивна визуализация на числовите отношения.</div>
+            <div class="module-meta">
+              <span class="tag gold">Math</span>
+              <span class="tag blue">Interactive</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="quantum" class="module-card">
+            <div class="module-icon">⚛️</div>
+            <div class="module-title">Quantum Blockchain Lab</div>
+            <div class="module-desc">Изследване на квантовите аспекти на блокчейна и криптографията. Експериментални модели и теории.</div>
+            <div class="module-meta">
+              <span class="tag green">Quantum</span>
+              <span class="tag blue">Crypto</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="szh" class="module-card">
+            <div class="module-icon">🔐</div>
+            <div class="module-title">SZH Quantum Engine</div>
+            <div class="module-desc">Специализиран квантов двигател за криптографски анализ. Фрактална симетрия и квантови вычисления.</div>
+            <div class="module-meta">
+              <span class="tag green">Quantum</span>
+              <span class="tag blue">Fractal</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="riemann" class="module-card">
+            <div class="module-icon">∞</div>
+            <div class="module-title">Riemann Bridge</div>
+            <div class="module-desc">Мост между Риманова хипотеза и Bitcoin математика. Връзки между простите числа и блокчейна.</div>
+            <div class="module-meta">
+              <span class="tag gold">Math</span>
+              <span class="tag blue">Theory</span>
+            </div>
+          </a>
+        </div>
+      </div>
+
+      <!-- Key Insights -->
+      <div class="section">
+        <h2 class="section-title">💡 Ключови Открития</h2>
+        
+        <div class="insight-box">
+          <h3>🔗 Синергия Bitcoin-AI-Астрономия</h3>
+          <p>Bitcoin кодира 5,000 години астрономическа математика. Невронните мрежи автоматично открива тези модели. Това потвърждава, че Satoshi намерено е вградил универсални константи в протокола.</p>
+        </div>
+
+        <div class="insight-box">
+          <h3>🌟 12 Математически Открития</h3>
+          <p>От Метоничен цикъл (2016 = 7!) до Ферма прости числа (0xFFFF = 3×5×17×257), Bitcoin е пълен с елегантни математически връзки. Всяко число има смисъл.</p>
+        </div>
+
+        <div class="insight-box">
+          <h3>🎯 Фибоначи в Протокола</h3>
+          <p>21M монети = F(8), 144 блока/ден = F(12), халвинг цикъл = F(13). Фибоначи последователност е вградена в критични точки на Bitcoin.</p>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>© 2026 BITHOME.PRO · Астрономическата Архитектура на Bitcoin</p>
+      <p style="margin-top: 8px;">Разработено с 🔬 за разбиране на синергията между древната астрономия, Bitcoin и изкуствения интелект</p>
+    </div>
+  </footer>
+
+  <!-- Auth Overlay -->
+  <div id="authOverlay" class="auth-overlay">
+    <div class="auth-box" id="authBox">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+        <h2 style="margin:0;" id="authTitle">AUTHORIZE</h2>
+        <button onclick="BitHome.auth.hide()" style="background:none;border:none;color:var(--muted);font-size:18px;cursor:pointer;padding:4px;">✕</button>
+      </div>
+
+      <!-- Tabs -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" data-tab="login" onclick="BitHome.auth.switchTab('login')">Login</button>
+        <button class="auth-tab" data-tab="register" onclick="BitHome.auth.switchTab('register')">Register</button>
+      </div>
+
+      <!-- Login -->
+      <div id="authLogin" class="auth-form active">
+        <div id="authLoginError" class="auth-error"></div>
+        <input id="authLoginEmail" type="email" placeholder="Email" autocomplete="email">
+        <input id="authLoginPass" type="password" placeholder="Password" autocomplete="current-password">
+        <button id="authLoginBtn" onclick="BitHome.auth.doLogin()">LOGIN</button>
+      </div>
+
+      <!-- Register -->
+      <div id="authRegister" class="auth-form">
+        <div id="authRegisterError" class="auth-error"></div>
+        <input id="authRegEmail" type="email" placeholder="Email" autocomplete="email">
+        <input id="authRegUser" type="text" placeholder="Username" autocomplete="username">
+        <input id="authRegPass" type="password" placeholder="Password" autocomplete="new-password">
+        <input id="authRegConfirm" type="password" placeholder="Confirm password">
+        <button id="authRegisterBtn" onclick="BitHome.auth.doRegister()">REGISTER</button>
+      </div>
+
+      <!-- Logged in -->
+      <div id="authLoggedIn" class="auth-logged-in">
+        <div class="auth-user-icon">👤</div>
+        <div class="auth-username" id="authDisplayName">—</div>
+        <div><span class="auth-badge" id="authDisplayBadge">FREE</span></div>
+        <button class="auth-logout-btn" onclick="BitHome.auth.doLogout()">LOGOUT</button>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    .auth-tabs { display:flex; gap:0; margin-bottom:16px; border:1px solid var(--border); border-radius:6px; overflow:hidden; }
+    .auth-tab { flex:1; padding:9px 0; background:transparent; color:var(--muted); border:none; font:700 10px 'Orbitron',sans-serif; cursor:pointer; text-transform:uppercase; letter-spacing:0.08em; transition:all 0.2s; }
+    .auth-tab.active { background:var(--accent); color:#000; }
+    .auth-form { display:none; }
+    .auth-form.active { display:block; }
+    .auth-form input { width:100%; padding:10px 12px; margin-bottom:10px; background:var(--bg); border:1px solid var(--border); color:var(--text); border-radius:6px; font:400 12px 'Share Tech Mono',monospace; outline:none; }
+    .auth-form input:focus { border-color:var(--accent); }
+    .auth-form button { width:100%; padding:10px; background:var(--accent); border:none; color:#000; font:700 12px 'Orbitron',sans-serif; cursor:pointer; border-radius:6px; letter-spacing:0.08em; transition:background 0.2s; }
+    .auth-form button:hover { background:#ffaa33; }
+    .auth-form button:disabled { opacity:0.5; cursor:not-allowed; }
+    .auth-error { color:var(--red); font-size:11px; margin-bottom:8px; display:none; }
+    .auth-logged-in { display:none; text-align:center; padding:8px 0; }
+    .auth-logged-in.active { display:block; }
+    .auth-user-icon { font-size:32px; margin-bottom:8px; }
+    .auth-username { color:var(--accent); font:700 16px 'Orbitron',sans-serif; margin-bottom:4px; }
+    .auth-badge { display:inline-block; padding:3px 10px; border-radius:999px; font-size:10px; font-family:'Orbitron',sans-serif; margin-bottom:12px; }
+    .auth-badge.free { border:1px solid var(--border); color:var(--muted); }
+    .auth-badge.pro { border:1px solid var(--green); color:var(--green); }
+    .auth-logout-btn { background:transparent; border:1px solid var(--border); color:var(--muted); padding:7px 18px; border-radius:6px; cursor:pointer; font:400 11px 'Share Tech Mono',monospace; }
+    .auth-logout-btn:hover { border-color:var(--red); color:var(--red); }
+  </style>
+
+  <!-- Module Modal -->
+  <div id="moduleModal" class="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="BitHome.close()">✕</button>
+      <iframe id="moduleFrame" data-base=""></iframe>
+    </div>
+  </div>
+
+  <script src="frontend/js/main.js"></script>
+
+</body></html>
