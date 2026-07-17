@@ -79,6 +79,7 @@ const BitHome = (() => {
     if (token && user) {
       state.authenticated = true;
       state.user = user;
+      updateNavUser(user);
     }
   }
 
@@ -166,6 +167,20 @@ const BitHome = (() => {
     } catch(e) { log('Auth fetch failed:', e); }
   }
 
+  function updateNavUser(user) {
+    const loginLink = document.querySelector('.nav-login');
+    const userSpan = document.querySelector('.nav-user');
+    if (!loginLink || !userSpan) return;
+    if (user) {
+      loginLink.style.display = 'none';
+      userSpan.style.display = 'inline';
+      userSpan.textContent = '👤 ' + (user.username || user.email);
+    } else {
+      loginLink.style.display = 'inline';
+      userSpan.style.display = 'none';
+    }
+  }
+
   function updateAuthUI(user) {
     const loginForm = document.getElementById('authLogin');
     const registerForm = document.getElementById('authRegister');
@@ -211,18 +226,32 @@ const BitHome = (() => {
     const banner = document.createElement('div');
     banner.id = 'verifyBanner';
     banner.style.cssText = 'background:rgba(247,147,26,0.1);border:1px solid var(--accent);border-radius:8px;padding:12px 16px;margin:12px 0;text-align:center;font-size:12px;';
-    let html = '📧 Verification email sent to <strong>' + email + '</strong>.<br>' +
-      'Click the link in the email, then press <strong>Check verification</strong> below.';
-    html += '<br><button onclick="BitHome.auth.checkVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
-      'style="background:transparent;border:1px solid var(--green);color:var(--green);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">✓ Check verification</button>';
+    let html = '📧 Verification email sent to <strong>' + email + '</strong>. Check your inbox and click the confirmation link.';
     html += '<br><button onclick="BitHome.auth.resendVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
-      'style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;margin-top:4px;cursor:pointer;font:400 11px monospace;">Resend email</button>';
+      'style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">Resend email</button>';
     banner.innerHTML = html;
     const authBox = document.getElementById('authBox');
     if (authBox) authBox.appendChild(banner);
+    startAutoVerify(email);
   }
 
-  async function checkVerification(email) {
+  let _verifyInterval = null;
+  function startAutoVerify(email) {
+    stopAutoVerify();
+    _verifyInterval = setInterval(async () => {
+      const ok = await checkVerificationSilent(email);
+      if (ok) {
+        stopAutoVerify();
+        const banner = document.getElementById('verifyBanner');
+        if (banner) banner.remove();
+        showToast('✅ Email verified!', 'success');
+      }
+    }, 15000);
+  }
+  function stopAutoVerify() {
+    if (_verifyInterval) { clearInterval(_verifyInterval); _verifyInterval = null; }
+  }
+  async function checkVerificationSilent(email) {
     try {
       const res = await fetch(API + '/api/auth/check-verification', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -230,15 +259,12 @@ const BitHome = (() => {
       });
       const data = await res.json();
       if (data.verified) {
-        showToast('✅ Email verified!', 'success');
         const user = getStoredUser();
         if (user) { user.email_verified = true; setStoredUser(user); state.user = user; updateAuthUI(user); }
-        const banner = document.getElementById('verifyBanner');
-        if (banner) banner.remove();
-      } else {
-        showToast(data.message || 'Not yet verified. Check your email and click the link first.', 'info');
+        return true;
       }
-    } catch(e) { showToast('Network error', 'error'); }
+      return false;
+    } catch(e) { return false; }
   }
 
   async function resendVerification(email) {
@@ -270,18 +296,16 @@ const BitHome = (() => {
       });
       const data = await res.json();
       if (!res.ok) {
-        if (data.email_verified === false) {
-          showError('authLoginError', 'Please verify your email first');
-          showVerifyBanner(e);
-        } else {
-          showError('authLoginError', data.error || 'Invalid email or password');
-        }
+        showError('authLoginError', data.error || 'Invalid email or password');
         if (btn) btn.disabled = false; return;
       }
       setToken(data.token); setStoredUser(data.user);
       state.authenticated = true; state.user = data.user;
-      updateAuthUI(data.user);
+      hideAuth();
+      updateNavUser(data.user);
       showToast('Login successful', 'success');
+      stopAutoVerify();
+      if (data.user && !data.user.email_verified) { startAutoVerify(data.user.email); }
     } catch(err) { showError('authLoginError', 'Connection error: ' + err.message); }
     if (btn) btn.disabled = false;
   }
@@ -308,8 +332,9 @@ const BitHome = (() => {
       if (!res.ok) { showError('authRegisterError', data.error || 'Registration failed'); return; }
       setToken(data.token); setStoredUser(data.user);
       state.authenticated = true; state.user = data.user;
-      updateAuthUI(data.user);
-      showToast('✅ Registered! Check your email to verify your account.', 'info');
+      hideAuth();
+      updateNavUser(data.user);
+      showToast('✅ Welcome! Check your email to verify your account.', 'info');
       if (data.user && !data.user.email_verified) { showVerifyBanner(data.user.email); }
     } catch(err) { showError('authRegisterError', 'Connection error: ' + err.message); }
     if (btn) btn.disabled = false;
@@ -321,6 +346,8 @@ const BitHome = (() => {
     state.moduleHistory = [];
     closeModule();
     updateAuthUI(null);
+    updateNavUser(null);
+    stopAutoVerify();
     showToast('Logged out', 'info');
   }
 
@@ -478,7 +505,11 @@ const BitHome = (() => {
     initNavigation();
     initKeyboardShortcuts();
     initModalBackgroundClick();
-    if (state.authenticated) updateAuthUI(state.user);
+    if (state.authenticated) {
+      updateAuthUI(state.user);
+      updateNavUser(state.user);
+      if (state.user && state.user.email_verified === false) startAutoVerify(state.user.email);
+    }
     checkLocalModules();
     log('BitHome Portal initialized');
     log('Authenticated:', state.authenticated, state.user);
@@ -495,7 +526,7 @@ const BitHome = (() => {
     auth: {
       show: showAuth, hide: hideAuth,
       doLogin, doRegister, doLogout,
-      resendVerification, checkVerification,
+      resendVerification,
       switchTab, check: isAuthenticated,
       onAuthChange, getUser: () => state.user,
     },
