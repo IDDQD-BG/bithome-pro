@@ -183,6 +183,8 @@ const BitHome = (() => {
       const badge = document.getElementById('authDisplayBadge');
       if (user.is_pro) {
         badge.textContent = 'PRO'; badge.className = 'auth-badge pro';
+      } else if (user.email_verified === false) {
+        badge.textContent = '⚠️ UNVERIFIED'; badge.className = 'auth-badge free';
       } else {
         badge.textContent = 'FREE'; badge.className = 'auth-badge free';
       }
@@ -203,6 +205,31 @@ const BitHome = (() => {
     if (el) el.style.display = 'none';
   }
 
+  function showVerifyBanner(email) {
+    const existing = document.getElementById('verifyBanner');
+    if (existing) existing.remove();
+    const banner = document.createElement('div');
+    banner.id = 'verifyBanner';
+    banner.style.cssText = 'background:rgba(247,147,26,0.1);border:1px solid var(--accent);border-radius:8px;padding:12px 16px;margin:12px 0;text-align:center;font-size:12px;';
+    banner.innerHTML = '📧 Verification email sent to <strong>' + email + '</strong>.' +
+      '<br><button onclick="BitHome.auth.resendVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
+      'style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">Resend</button>';
+    const authBox = document.getElementById('authBox');
+    if (authBox) authBox.appendChild(banner);
+  }
+
+  async function resendVerification(email) {
+    try {
+      const res = await fetch(API + '/api/auth/resend-verification', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      if (res.ok) { showToast('Verification email sent!', 'info'); }
+      else { showToast(data.error || 'Failed to resend', 'error'); }
+    } catch(e) { showToast('Network error', 'error'); }
+  }
+
   async function doLogin() {
     const email = document.getElementById('authLoginEmail');
     const pass = document.getElementById('authLoginPass');
@@ -218,7 +245,15 @@ const BitHome = (() => {
         body: JSON.stringify({ email: e, password: p })
       });
       const data = await res.json();
-      if (!res.ok) { showError('authLoginError', data.error); if (btn) btn.disabled = false; return; }
+      if (!res.ok) {
+        if (data.email_verified === false) {
+          showError('authLoginError', 'Please verify your email first');
+          showVerifyBanner(e);
+        } else {
+          showError('authLoginError', data.error || 'Invalid email or password');
+        }
+        if (btn) btn.disabled = false; return;
+      }
       setToken(data.token); setStoredUser(data.user);
       state.authenticated = true; state.user = data.user;
       updateAuthUI(data.user);
@@ -250,7 +285,8 @@ const BitHome = (() => {
       setToken(data.token); setStoredUser(data.user);
       state.authenticated = true; state.user = data.user;
       updateAuthUI(data.user);
-      showToast('Registration successful', 'success');
+      showToast('✅ Registered! Check your email to verify your account.', 'info');
+      if (data.user && !data.user.email_verified) { showVerifyBanner(data.user.email); }
     } catch(err) { showError('authRegisterError', 'Connection error: ' + err.message); }
     if (btn) btn.disabled = false;
   }
@@ -435,6 +471,7 @@ const BitHome = (() => {
     auth: {
       show: showAuth, hide: hideAuth,
       doLogin, doRegister, doLogout,
+      resendVerification,
       switchTab, check: isAuthenticated,
       onAuthChange, getUser: () => state.user,
     },
