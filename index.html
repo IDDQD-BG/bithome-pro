@@ -74,6 +74,36 @@
       padding: 6px 0;
     }
     .nav a:hover, .nav a.active { color: var(--accent); }
+    .nav-dropdown { position: relative; overflow: visible; }
+    .nav-dropdown-toggle { cursor: pointer; }
+    .nav-dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px;
+      min-width: 180px;
+      z-index: 200;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    }
+    .nav-dropdown-menu a {
+      display: block;
+      padding: 8px 14px;
+      border-radius: 4px;
+      color: var(--muted);
+      text-decoration: none;
+      font: 400 10px/1 'Orbitron', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+    .nav-dropdown-menu a:hover { background: var(--accent-rgba); color: var(--accent); }
+    .nav-dropdown:hover .nav-dropdown-menu { display: block; }
     main { padding: 48px 0 80px; }
     .hero {
       margin-bottom: 64px;
@@ -298,7 +328,14 @@
           <a href="#" data-module="ai">AI Bridge</a>
           <a href="#" data-module="research">Research</a>
           <a href="#" data-module="nano-miner" style="color:var(--green)">Nano Miner</a>
-          <a href="#" data-module="legitimator" style="color:var(--gold)">Coliseum</a>
+          <div class="nav-dropdown">
+            <a href="#" class="nav-dropdown-toggle">Nostr ▾</a>
+            <div class="nav-dropdown-menu">
+              <a href="#" data-module="legitimator">Political Coliseum</a>
+              <a href="#" data-module="nostr-basics">Nostr Basics</a>
+              <a href="#" data-module="nostr-relay">Nostr Relay Lab</a>
+            </div>
+          </div>
           <a href="#" data-module="integrated-forge" style="color:var(--gold)">SaaS</a>
           <a href="#" onclick="BitHome.auth.show();return false" style="color:var(--accent)">Login</a>
         </nav>
@@ -311,6 +348,22 @@
       <div class="hero">
         <h1>BitHome Portal</h1>
         <p>Централизиран хъб за изследване на астрономическата архитектура на Bitcoin. Открийте как древната математика, невронните мрежи и блокчейна конвергират към универсални константи.</p>
+      </div>
+
+      <!-- Актуално -->
+      <div class="section">
+        <h2 class="section-title">📢 Последни Актуализации</h2>
+        <div class="modules-grid">
+          <a href="#" data-module="legitimator" class="module-card">
+            <div class="module-icon">🏛️</div>
+            <div class="module-title">Political Coliseum</div>
+            <div class="module-desc">Децентрализирана система за политическа легитимация и Течна демокрация (Liquid Democracy), изградена върху Nostr протокола.</div>
+            <div class="module-meta">
+              <span class="tag purple">Nostr</span>
+              <span class="tag gold">Democracy</span>
+            </div>
+          </a>
+        </div>
       </div>
 
       <!-- Core Modules -->
@@ -546,21 +599,6 @@
             <div class="module-meta">
               <span class="tag gold">Math</span>
               <span class="tag blue">Theory</span>
-            </div>
-          </a>
-        </div>
-      </div>
-
-      <div class="section">
-        <h2 class="section-title">🏛️ Нещо ново</h2>
-        <div class="modules-grid">
-          <a href="#" data-module="legitimator" class="module-card">
-            <div class="module-icon">🏛️</div>
-            <div class="module-title">Political Coliseum</div>
-            <div class="module-desc">Децентрализирана система за политическа легитимация и Течна демокрация (Liquid Democracy), изградена върху Nostr протокола.</div>
-            <div class="module-meta">
-              <span class="tag purple">Nostr</span>
-              <span class="tag gold">Democracy</span>
             </div>
           </a>
         </div>
