@@ -74,38 +74,36 @@
       padding: 6px 0;
     }
     .nav a:hover, .nav a.active { color: var(--accent); }
-    .nav-dropdown { position: relative; overflow: visible; }
-    .nav-dropdown-toggle { cursor: pointer; }
+    .nav-dropdown { position: relative; }
+    .header-content { position: relative; }
     .nav-dropdown-menu {
       display: none;
-      position: absolute;
-      top: 100%;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--panel);
+      position: fixed;
+      background: #16162a;
       border: 1px solid var(--border);
       border-radius: 8px;
       padding: 6px;
       min-width: 180px;
-      z-index: 200;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+      z-index: 99999;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.8);
     }
-    .nav-dropdown-menu.open, .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+    .nav-dropdown-menu.open { display: block; }
     .nav-dropdown-menu a {
       display: block;
       padding: 8px 14px;
       border-radius: 4px;
-      color: var(--muted);
+      color: #c8c8e0;
       text-decoration: none;
       font: 400 10px/1 'Orbitron', sans-serif;
       text-transform: uppercase;
       letter-spacing: 0.1em;
       white-space: nowrap;
-      transition: all 0.2s;
+      transition: all 0.15s;
     }
-    .nav-dropdown-menu a:hover { background: var(--accent-rgba); color: var(--accent); }
-    .nav-dropdown-toggle { cursor: pointer; }
-    .nav-dropdown-toggle:hover { color: var(--accent); }
+    .nav-dropdown-menu a:hover { background: rgba(247,147,26,0.15); color: var(--accent); }
+    .nav-dropdown-toggle { cursor: pointer; color: var(--blue); }
+    .nav-dropdown-toggle:hover,
+    .nav-dropdown-toggle.active { color: var(--accent); }
     .section:first-of-type .modules-grid { grid-template-columns: repeat(4, 1fr); }
     .section:first-of-type .module-card:nth-child(n+5) { display: none; }
     main { padding: 48px 0 80px; }
@@ -152,8 +150,8 @@
       transform: translateY(-3px);
     }
     .module-card.offline {
-      opacity: 0.5;
-      filter: grayscale(0.6);
+      opacity: 0.75;
+      filter: grayscale(0.3);
       cursor: not-allowed;
       pointer-events: none;
     }
@@ -336,16 +334,16 @@
           <a href="#" data-module="nano-miner" style="color:var(--green)">Nano Miner</a>
           <div class="nav-dropdown">
             <a href="#" class="nav-dropdown-toggle">Nostr ▾</a>
-            <div class="nav-dropdown-menu">
-              <a href="#" data-module="legitimator">Political Coliseum</a>
-              <a href="#" data-module="nostr-basics">Nostr Basics</a>
-              <a href="#" data-module="nostr-relay">Nostr Relay Lab</a>
-            </div>
           </div>
           <a href="#" data-module="integrated-forge" style="color:var(--gold)">SaaS</a>
           <a href="#" onclick="BitHome.auth.show();return false" style="color:var(--accent)">Login</a>
         </nav>
       </div>
+    </div>
+    <div class="nav-dropdown-menu">
+      <a href="#" data-module="legitimator">Political Coliseum</a>
+      <a href="#" data-module="nostr-basics">Nostr Basics</a>
+      <a href="#" data-module="nostr-relay">Nostr Relay Lab</a>
     </div>
   </header>
 
