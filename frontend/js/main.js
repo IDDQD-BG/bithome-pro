@@ -308,28 +308,22 @@ const BitHome = (() => {
       if (!key) return;
       const url = MODULE_MAP[key];
       if (!url || url.startsWith('http')) return;
+      const meta = card.querySelector('.module-meta');
+      if (!meta) return;
       fetch(url, { method: 'HEAD' }).then(res => {
-        if (!res.ok) {
-          card.classList.add('offline');
-          const meta = card.querySelector('.module-meta');
-          if (meta) {
-            const off = document.createElement('span');
-            off.className = 'tag offline-tag';
-            off.textContent = 'offline';
-            meta.appendChild(off);
-          }
-        }
-      }).catch(() => {
-        card.classList.add('offline');
-        const meta = card.querySelector('.module-meta');
-        if (meta) {
-          const off = document.createElement('span');
-          off.className = 'tag offline-tag';
-          off.textContent = 'offline';
-          meta.appendChild(off);
-        }
-      });
+        if (!res.ok) { markOffline(card, meta); }
+      }).catch(() => { markOffline(card, meta); });
     });
+  }
+  function markOffline(card, meta) {
+    card.classList.add('offline');
+    const existing = meta.querySelector('.offline-tag');
+    if (!existing) {
+      const off = document.createElement('span');
+      off.className = 'tag offline-tag';
+      off.textContent = 'offline';
+      meta.appendChild(off);
+    }
   }
 
   function initModuleCards() {
