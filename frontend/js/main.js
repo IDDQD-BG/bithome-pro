@@ -9,58 +9,14 @@ const BitHome = (() => {
     return 'https://bithome-api.vercel.app';
   })();
 
-  const MODULE_MAP = {
-    'explorer': 'bitcoin-hash-explorer.html',
-    'learn': 'https://iddqd-bg.github.io/learn/',
-    'geometry': 'Абсолютната Геометрия — Станков.html',
-    'geometry-rings': 'Геометричните Пръстени — Станков.html',
-    'calendar': 'calendar.html',
-    'ai': 'ai-genesis-core.html',
-    'research': 'index.html',
-    '3d': 'genesis_3d_duality_257.html',
-    'born-ai': 'bitcoin-born-ai.html',
-    'fermat': 'fermat-matrix.html',
-    'quantum': 'BITHOME.PRO · Quantum Blockchain Laboratory.html',
-    'szh': 'szh-quantum-engine.html',
-    'riemann': 'riemann-bridge.html',
-    'spacetime': 'spacetime-evolution-engine.html',
-    'merkle': 'BITHOME.PRO · Live Merkle Tree Laboratory.html',
-    'mesh': 'stankov_mesh_integrated.html',
-    'live-lab': 'LIVE_LABORATORIUM.html',
-    'watermark': 'stankov-watermark-visual.html',
-    'pro': 'pro.html',
-    'coliseum': 'Political Legitimator – Standalone Coliseum.html',
-    'the-discovery': 'the-discovery.html',
-    'master-key': 'the-master-key.html',
-    'stankov-arch': 'stankov-bitcoin-architecture.html',
-    'calendar-duality': 'stankov_calendar_duality.html',
-    'lucas-convergence': 'lucas-satoshi-convergence.html',
-    'riemann-bridge-satoshi': 'riemann-satoshi-bridge.html',
-    'tape-model': 'genesis-tape-model.html',
-    'tape-360': 'genesis-tape-360.html',
-    'nano-miner': 'nano-miner.html',
-    'radial-merkle': 'radial-merkle-lab.html',
-    'time-anomalies': 'time-anomalies.html',
-    'decode-block0': 'decode-block-0.html',
-    'integrated-forge': 'integrated-forge.html',
-    'arch-satoshi': 'astronomical-architecture-satoshi.html',
-    'subscriptions': 'subscriptions.html',
-    'stankov-stat': 'stankov-stat-test.html',
-    'ai-bridge-results': 'stankov-ai-bridge-results.html',
-    'stankov-arch-v9': 'stankov-bitcoin-architecture-v9.html',
-    'spirals': 'unified-3d-spirals.html',
-    'mesh-en5425': 'mesh-en5425-demo.html',
-    'stankov-calendar-duality': 'stankov-calendar-duality.html',
-    'angle-21': 'angle-decomposition-21.html',
-    'teorema-geometria': 'teorema-geometria.html',
-    'updates': 'updates.html',
-  };
+  let MODULE_MAP = {};
 
   const state = {
     authenticated: false,
     user: null,
     currentModule: null,
     moduleHistory: [],
+    projects: [],
   };
 
   function log(...args) { console.log('[BitHome]', ...args); }
@@ -83,20 +39,84 @@ const BitHome = (() => {
   function getFrame() { return document.getElementById('moduleFrame'); }
   function getAuthOverlay() { return document.getElementById('authOverlay'); }
 
+  async function loadProjects() {
+    try {
+      const res = await fetch('projects.json');
+      const data = await res.json();
+      state.projects = data.sections || [];
+      // Build MODULE_MAP
+      MODULE_MAP = {};
+      for (const section of state.projects) {
+        for (const p of section.projects || []) {
+          MODULE_MAP[p.id] = p;
+        }
+      }
+      renderProjects();
+    } catch(e) {
+      log('Failed to load projects:', e);
+      document.getElementById('projectsContainer').innerHTML =
+        '<div class="section"><p style="color:var(--red)">Failed to load projects.</p></div>';
+    }
+  }
+
+  function renderProjects() {
+    const container = document.getElementById('projectsContainer');
+    if (!container) return;
+    let html = '';
+    for (const section of state.projects) {
+      if (!section.projects || section.projects.length === 0) continue;
+      html += '<div class="section">';
+      html += '<h2 class="section-title">' + section.title + '</h2>';
+      html += '<div class="modules-grid">';
+      for (const p of section.projects) {
+        const tagsHtml = (p.tags || []).map(t => {
+          const cls = t === 'Interactive' || t === '3D' || t === 'Nostr' ? 'blue'
+            : t === 'AI/ML' || t === 'Mining' || t === 'Canvas' ? 'green'
+            : t === 'Math' || t === 'Astronomy' || t === 'Academic' || t === 'SaaS' || t === 'Theory' || t === 'Quantum' || t === 'Democracy' ? 'gold'
+            : '';
+          return '<span class="tag ' + cls + '">' + t + '</span>';
+        }).join('');
+        html += '<a href="#" data-module="' + p.id + '" class="module-card">';
+        html += '<div class="module-icon">' + (p.icon || '📄') + '</div>';
+        html += '<div class="module-title">' + p.title + '</div>';
+        html += '<div class="module-desc">' + (p.desc || '') + '</div>';
+        html += '<div class="module-meta">' + tagsHtml + '</div>';
+        html += '</a>';
+      }
+      html += '</div></div>';
+    }
+    container.innerHTML = html;
+    // Re-bind click handlers
+    container.querySelectorAll('.module-card').forEach(card => {
+      card.addEventListener('click', function(e) {
+        e.preventDefault();
+        const moduleKey = this.dataset.module;
+        if (moduleKey) openModule(moduleKey);
+      });
+    });
+  }
+
   function openModule(moduleKey) {
-    const url = MODULE_MAP[moduleKey];
-    if (!url) { log('Unknown module:', moduleKey); return; }
+    const entry = MODULE_MAP[moduleKey];
+    if (!entry) { log('Unknown module:', moduleKey); return; }
+    const url = entry.url;
+    if (!url) { log('No URL for module:', moduleKey); return; }
+
     const modal = getModal();
     const frame = getFrame();
     if (!modal || !frame) return;
+
     state.currentModule = moduleKey;
     state.moduleHistory.push(moduleKey);
+
     const base = frame.getAttribute('data-base') || '';
-    frame.src = url.startsWith('http') ? url : base + url;
+    const isExternal = entry.type === 'external' || url.startsWith('http');
+    frame.src = isExternal ? url : base + url;
+
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
     updateActiveNav(moduleKey);
-    log('Opened module:', moduleKey);
+    log('Opened module:', moduleKey, url);
   }
 
   function closeModule() {
@@ -152,10 +172,8 @@ const BitHome = (() => {
         setStoredUser(data.user);
         updateAuthUI(data.user);
       } else {
-        setToken(null);
-        setStoredUser(null);
-        state.authenticated = false;
-        state.user = null;
+        setToken(null); setStoredUser(null);
+        state.authenticated = false; state.user = null;
       }
     } catch(e) { log('Auth fetch failed:', e); }
   }
@@ -167,7 +185,6 @@ const BitHome = (() => {
     const tabs = document.querySelector('.auth-tabs');
     const title = document.getElementById('authTitle');
     if (!loggedIn) return;
-
     if (user) {
       if (loginForm) loginForm.classList.remove('active');
       if (registerForm) registerForm.classList.remove('active');
@@ -177,11 +194,9 @@ const BitHome = (() => {
       document.getElementById('authDisplayName').textContent = user.username || user.email;
       const badge = document.getElementById('authDisplayBadge');
       if (user.is_pro) {
-        badge.textContent = 'PRO';
-        badge.className = 'auth-badge pro';
+        badge.textContent = 'PRO'; badge.className = 'auth-badge pro';
       } else {
-        badge.textContent = 'FREE';
-        badge.className = 'auth-badge free';
+        badge.textContent = 'FREE'; badge.className = 'auth-badge free';
       }
     } else {
       if (loggedIn) loggedIn.classList.remove('active');
@@ -195,7 +210,6 @@ const BitHome = (() => {
     const el = document.getElementById(formId);
     if (el) { el.textContent = msg; el.style.display = 'block'; }
   }
-
   function hideError(formId) {
     const el = document.getElementById(formId);
     if (el) el.style.display = 'none';
@@ -217,10 +231,8 @@ const BitHome = (() => {
       });
       const data = await res.json();
       if (!res.ok) { showError('authLoginError', data.error); if (btn) btn.disabled = false; return; }
-      setToken(data.token);
-      setStoredUser(data.user);
-      state.authenticated = true;
-      state.user = data.user;
+      setToken(data.token); setStoredUser(data.user);
+      state.authenticated = true; state.user = data.user;
       updateAuthUI(data.user);
       showToast('Login successful', 'success');
     } catch(err) { showError('authLoginError', 'Connection error: ' + err.message); }
@@ -247,10 +259,8 @@ const BitHome = (() => {
       });
       const data = await res.json();
       if (!res.ok) { showError('authRegisterError', data.error); if (btn) btn.disabled = false; return; }
-      setToken(data.token);
-      setStoredUser(data.user);
-      state.authenticated = true;
-      state.user = data.user;
+      setToken(data.token); setStoredUser(data.user);
+      state.authenticated = true; state.user = data.user;
       updateAuthUI(data.user);
       showToast('Registration successful', 'success');
     } catch(err) { showError('authRegisterError', 'Connection error: ' + err.message); }
@@ -258,24 +268,20 @@ const BitHome = (() => {
   }
 
   function doLogout() {
-    setToken(null);
-    setStoredUser(null);
-    state.authenticated = false;
-    state.user = null;
+    setToken(null); setStoredUser(null);
+    state.authenticated = false; state.user = null;
     state.moduleHistory = [];
     closeModule();
     updateAuthUI(null);
     showToast('Logged out', 'info');
-    log('Logged out');
   }
 
   function switchTab(tab) {
     document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.auth-form').forEach(f => f.classList.remove('active'));
-    document.querySelector(`.auth-tab[data-tab="${tab}"]`).classList.add('active');
+    document.querySelector('.auth-tab[data-tab="' + tab + '"]').classList.add('active');
     document.getElementById('auth' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
-    hideError('authLoginError');
-    hideError('authRegisterError');
+    hideError('authLoginError'); hideError('authRegisterError');
   }
 
   function isAuthenticated() { return state.authenticated; }
@@ -301,36 +307,12 @@ const BitHome = (() => {
 
   function onAuthChange(user) {
     if (user) {
-      state.authenticated = true;
-      state.user = user;
-      setStoredUser(user);
-      updateAuthUI(user);
+      state.authenticated = true; state.user = user;
+      setStoredUser(user); updateAuthUI(user);
       showToast('Welcome, ' + user.username, 'success');
     } else {
-      state.authenticated = false;
-      state.user = null;
+      state.authenticated = false; state.user = null;
       updateAuthUI(null);
-    }
-  }
-
-  function initModuleCards() {
-    document.querySelectorAll('.module-card').forEach(card => {
-      card.addEventListener('click', function(e) {
-        e.preventDefault();
-        const moduleKey = this.dataset.module;
-        if (moduleKey) openModule(moduleKey);
-      });
-    });
-  }
-
-  function initAuthForm() {
-    const form = document.getElementById('authForm');
-    if (form) {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const input = this.querySelector('input');
-        if (input) authenticate(input.value);
-      });
     }
   }
 
@@ -366,13 +348,12 @@ const BitHome = (() => {
 
   function init() {
     loadState();
-    initModuleCards();
     initNavigation();
     initKeyboardShortcuts();
     initModalBackgroundClick();
     if (state.authenticated) updateAuthUI(state.user);
+    loadProjects();
     log('BitHome Portal initialized');
-    log('Authenticated:', state.authenticated, state.user);
   }
 
   if (document.readyState === 'loading') {
@@ -384,18 +365,13 @@ const BitHome = (() => {
     close: closeModule,
     back: navigateBack,
     auth: {
-      show: showAuth,
-      hide: hideAuth,
-      doLogin,
-      doRegister,
-      doLogout,
-      switchTab,
-      check: isAuthenticated,
-      onAuthChange,
-      getUser: () => state.user,
+      show: showAuth, hide: hideAuth,
+      doLogin, doRegister, doLogout,
+      switchTab, check: isAuthenticated,
+      onAuthChange, getUser: () => state.user,
     },
     toast: showToast,
     getState: () => ({ ...state }),
-    modules: MODULE_MAP,
+    modules: () => MODULE_MAP,
   };
 })();
