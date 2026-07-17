@@ -205,15 +205,19 @@ const BitHome = (() => {
     if (el) el.style.display = 'none';
   }
 
-  function showVerifyBanner(email) {
+  function showVerifyBanner(email, directUrl) {
     const existing = document.getElementById('verifyBanner');
     if (existing) existing.remove();
     const banner = document.createElement('div');
     banner.id = 'verifyBanner';
     banner.style.cssText = 'background:rgba(247,147,26,0.1);border:1px solid var(--accent);border-radius:8px;padding:12px 16px;margin:12px 0;text-align:center;font-size:12px;';
-    banner.innerHTML = '📧 Verification email sent to <strong>' + email + '</strong>.' +
-      '<br><button onclick="BitHome.auth.resendVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
-      'style="background:transparent;border:1px solid var(--accent);color:var(--accent);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">Resend</button>';
+    let html = '📧 Verification email sent to <strong>' + email + '</strong>.';
+    if (directUrl) {
+      html += '<br><a href="' + directUrl + '" target="_blank" style="display:inline-block;background:var(--accent);color:#000;padding:8px 16px;border-radius:6px;margin-top:8px;text-decoration:none;font:700 11px/1 Orbitron,sans-serif;letter-spacing:0.08em;">✓ VERIFY NOW</a>';
+    }
+    html += '<br><button onclick="BitHome.auth.resendVerification(\'' + email.replace(/'/g, "\\'") + '\')" ' +
+      'style="background:transparent;border:1px solid var(--border);color:var(--muted);padding:6px 14px;border-radius:6px;margin-top:8px;cursor:pointer;font:400 11px monospace;">Resend</button>';
+    banner.innerHTML = html;
     const authBox = document.getElementById('authBox');
     if (authBox) authBox.appendChild(banner);
   }
@@ -225,8 +229,14 @@ const BitHome = (() => {
         body: JSON.stringify({ email })
       });
       const data = await res.json();
-      if (res.ok) { showToast('Verification email sent!', 'info'); }
-      else { showToast(data.error || 'Failed to resend', 'error'); }
+      if (res.ok) {
+        if (data.url) {
+          showToast('Email not sent. Use the button below to verify directly.', 'info');
+          showVerifyBanner(email, data.url);
+        } else {
+          showToast('Verification email sent!', 'info');
+        }
+      } else { showToast(data.error || 'Failed to resend', 'error'); }
     } catch(e) { showToast('Network error', 'error'); }
   }
 
@@ -281,12 +291,13 @@ const BitHome = (() => {
         body: JSON.stringify({ email: e, username: u, password: p })
       });
       const data = await res.json();
-      if (!res.ok) { showError('authRegisterError', data.error); if (btn) btn.disabled = false; return; }
+      if (!res.ok) { showError('authRegisterError', data.error || 'Registration failed'); return; }
       setToken(data.token); setStoredUser(data.user);
       state.authenticated = true; state.user = data.user;
       updateAuthUI(data.user);
+      const verifyUrl = data.verify_url || data.user?.verify_url || null;
       showToast('✅ Registered! Check your email to verify your account.', 'info');
-      if (data.user && !data.user.email_verified) { showVerifyBanner(data.user.email); }
+      if (data.user && !data.user.email_verified) { showVerifyBanner(data.user.email, verifyUrl); }
     } catch(err) { showError('authRegisterError', 'Connection error: ' + err.message); }
     if (btn) btn.disabled = false;
   }
