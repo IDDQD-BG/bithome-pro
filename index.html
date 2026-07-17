@@ -90,6 +90,7 @@
       z-index: 200;
       box-shadow: 0 8px 32px rgba(0,0,0,0.6);
     }
+    .nav-dropdown-menu.open, .nav-dropdown:hover .nav-dropdown-menu { display: block; }
     .nav-dropdown-menu a {
       display: block;
       padding: 8px 14px;
@@ -103,7 +104,10 @@
       transition: all 0.2s;
     }
     .nav-dropdown-menu a:hover { background: var(--accent-rgba); color: var(--accent); }
-    .nav-dropdown:hover .nav-dropdown-menu { display: block; }
+    .nav-dropdown-toggle { cursor: pointer; }
+    .nav-dropdown-toggle:hover { color: var(--accent); }
+    .section:first-of-type .modules-grid { grid-template-columns: repeat(4, 1fr); }
+    .section:first-of-type .module-card:nth-child(n+5) { display: none; }
     main { padding: 48px 0 80px; }
     .hero {
       margin-bottom: 64px;
@@ -300,6 +304,8 @@
     iframe { width: 100%; height: 100%; border: none; display: block; }
     @media (max-width: 768px) {
       .modules-grid { grid-template-columns: 1fr; gap: 12px; }
+      .section:first-of-type .modules-grid { grid-template-columns: 1fr; }
+      .section:first-of-type .module-card:nth-child(n+2) { display: none; }
       .nav { gap: 12px; }
       .nav a { font-size: 9px; }
       .header-content { gap: 16px; }
@@ -427,6 +433,16 @@
             <div class="module-meta">
               <span class="tag gold">Academic</span>
               <span class="tag blue">Papers</span>
+            </div>
+          </a>
+
+          <a href="#" data-module="legitimator" class="module-card">
+            <div class="module-icon">🏛️</div>
+            <div class="module-title">Political Coliseum</div>
+            <div class="module-desc">Децентрализирана система за политическа легитимация и Течна демокрация (Liquid Democracy), изградена върху Nostr протокола.</div>
+            <div class="module-meta">
+              <span class="tag purple">Nostr</span>
+              <span class="tag gold">Democracy</span>
             </div>
           </a>
         </div>
