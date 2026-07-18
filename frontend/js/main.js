@@ -406,7 +406,8 @@ const BitHome = (() => {
     const params = new URLSearchParams(hash.substring(1));
     const accessToken = params.get('access_token');
     const type = params.get('type');
-    if (!accessToken || type !== 'oauth') return false;
+    if (!accessToken) return false;
+    if (['signup', 'recovery', 'invite'].includes(type)) return false;
     window.location.hash = '';
     history.replaceState(null, '', window.location.pathname);
     try {
