@@ -150,8 +150,8 @@
       transform: translateY(-3px);
     }
     .module-card.offline {
-      opacity: 0.75;
-      filter: grayscale(0.3);
+      opacity: 0.3;
+      filter: grayscale(0.7) blur(0.5px);
       cursor: not-allowed;
       pointer-events: none;
     }
@@ -159,6 +159,14 @@
       border-color: var(--border);
       box-shadow: none;
       transform: none;
+    }
+    .module-card.online {
+      border-color: rgba(127,255,0,0.2);
+      box-shadow: 0 0 12px rgba(127,255,0,0.05);
+    }
+    .module-card.online:hover {
+      border-color: var(--green);
+      box-shadow: 0 0 24px rgba(127,255,0,0.12), inset 0 0 30px rgba(127,255,0,0.03);
     }
     .module-icon { font-size: 28px; line-height: 1; }
     .module-title {
