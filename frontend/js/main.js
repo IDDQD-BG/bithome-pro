@@ -405,7 +405,7 @@ const BitHome = (() => {
     if (!hash || !hash.includes('access_token')) return false;
     const params = new URLSearchParams(hash.substring(1));
     const accessToken = params.get('access_token');
-    const type = params.get('type');
+    const type = params.get('type') || '';
     if (!accessToken) return false;
     if (['signup', 'recovery', 'invite'].includes(type)) return false;
     window.location.hash = '';
@@ -440,15 +440,27 @@ const BitHome = (() => {
       const key = card.dataset.module;
       if (!key) return;
       const url = MODULE_MAP[key];
-      if (!url || url.startsWith('http')) return;
+      if (!url) return;
       const meta = card.querySelector('.module-meta');
       if (!meta) return;
+      if (url.startsWith('http')) {
+        card.classList.add('online');
+        return;
+      }
       fetch(url, { method: 'HEAD' }).then(res => {
-        if (!res.ok) { markOffline(card, meta); }
+        if (res.ok) { markOnline(card, meta); }
+        else { markOffline(card, meta); }
       }).catch(() => { markOffline(card, meta); });
     });
   }
+  function markOnline(card, meta) {
+    card.classList.remove('offline');
+    card.classList.add('online');
+    const tag = meta.querySelector('.offline-tag');
+    if (tag) tag.remove();
+  }
   function markOffline(card, meta) {
+    card.classList.remove('online');
     card.classList.add('offline');
     const existing = meta.querySelector('.offline-tag');
     if (!existing) {
@@ -556,7 +568,8 @@ const BitHome = (() => {
       updateNavUser(state.user);
       if (state.user && state.user.email_verified === false) startAutoVerify(state.user.email);
     }
-    if (!hadOAuth) checkLocalModules();
+    if (hadOAuth) { setTimeout(checkLocalModules, 500); }
+    else { checkLocalModules(); }
     log('BitHome Portal initialized');
     log('Authenticated:', state.authenticated, state.user);
   }
