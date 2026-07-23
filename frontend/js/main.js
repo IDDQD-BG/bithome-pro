@@ -12,7 +12,7 @@ const BitHome = (() => {
   })();
 
   const MODULE_MAP = {
-    'explorer': 'bitcoin-hash-explorer.html',
+    'explorer': 'https://iddqd-bg.github.io/BitcoinHashExplorer/bitcoin-hash-explorer.html',
     'learn': 'https://iddqd-bg.github.io/learn/',
     'geometry': 'Абсолютната Геометрия — Станков.html',
     'geometry-rings': 'Геометричните Пръстени — Станков.html',
