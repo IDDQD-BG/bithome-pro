@@ -40,7 +40,7 @@ const BitHome = (() => {
     'riemann-bridge-satoshi': 'riemann-satoshi-bridge.html',
     'tape-model': 'genesis-tape-model.html',
     'tape-360': 'genesis-tape-360.html',
-    'nano-miner': 'nano-miner.html',
+    'nano-miner': 'https://iddqd-bg.github.io/NanoMiner/',
     'radial-merkle': 'radial-merkle-lab.html',
     'time-anomalies': 'time-anomalies.html',
     'decode-block0': 'decode-block-0.html',
