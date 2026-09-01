@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<title>BITHOME CLIENT · ACC</title>
+<link rel="stylesheet" href="css/terminal.css?v=1">
+</head>
+<body>
+
+<!-- ───────────── COMMAND BAR ───────────── -->
+<header id="cmdbar">
+  <div class="brand">BITHOME<span class="hl">.CLIENT</span><small>GROWTH ACCOUNT · AUTOMATED</small></div>
+  <nav class="tabs">
+    <button class="tab on" data-tab="home" onclick="setTab('home')">HOME</button>
+    <button class="tab" data-tab="portfolio" onclick="setTab('portfolio')">PORTFOLIO</button>
+    <button class="tab" data-tab="activity" onclick="setTab('activity')">ACTIVITY</button>
+    <button class="tab" data-tab="billing" onclick="setTab('billing')">BILLING</button>
+  </nav>
+  <div id="spacer"></div>
+  <div id="authBox">
+    <input id="keyInput" type="text" placeholder="LICENSE KEY" spellcheck="false" autocomplete="off">
+    <button id="authBtn" onclick="connect()">CONNECT</button>
+    <div id="authMsg"></div>
+  </div>
+</header>
+
+<!-- ───────────── HOME · SYSTEM STATE ───────────── -->
+<section id="tab-home" class="tab-view view">
+  <div class="state-hero">
+    <div class="st-label">SYSTEM STATE</div>
+    <div class="st-line" id="stState">—</div>
+    <div class="st-meta-grid">
+      <div class="st-meta"><span>CONFIDENCE</span><b id="stConf">—</b></div>
+      <div class="st-meta"><span>RISK</span><b id="stRisk">—</b></div>
+      <div class="st-meta"><span>AUTOMATION</span><b id="stAuto">—</b></div>
+    </div>
+    <div class="st-gate" id="stGate">—</div>
+    <div class="st-lock" id="heroLock">
+      <div class="hl-box">
+        <b>CONNECT TO VIEW</b>
+        <span>Enter your license key to see live account state.</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── PORTFOLIO ───────────── -->
+<section id="tab-portfolio" class="tab-view">
+  <div class="panel">
+    <div class="phead"><span class="t">PORTFOLIO</span></div>
+    <div class="pf-grid">
+      <div class="pf"><span>EQUITY</span><b id="pfEquity">—</b></div>
+      <div class="pf"><span>BTC HELD</span><b id="pfBtc">—</b></div>
+      <div class="pf"><span>REALIZED PNL</span><b id="pfPnl">—</b></div>
+      <div class="pf"><span>TRADES</span><b id="pfTrades">—</b></div>
+      <div class="pf"><span>WIN RATE</span><b id="pfWin">—</b></div>
+      <div class="pf"><span>CASH</span><b id="pfCash">—</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- ───────────── ACTIVITY ───────────── -->
+<section id="tab-activity" class="tab-view">
+  <div class="panel">
+    <div class="phead"><span class="t">ACTIVITY</span></div>
+    <div class="act-row big">
+      <span class="k">LAST BUY</span><b id="actBuy">—</b>
+    </div>
+    <div class="act-row big">
+      <span class="k">LAST SELL</span><b id="actSell">—</b>
+    </div>
+    <div class="phead sub"><span class="t">RECENT ACTIONS</span></div>
+    <div id="actRecent" class="act-list"><div class="loading">no activity yet</div></div>
+  </div>
+</section>
+
+<!-- ───────────── BILLING ───────────── -->
+<section id="tab-billing" class="tab-view">
+  <div class="panel">
+    <div class="phead"><span class="t">BILLING</span></div>
+    <div class="bill-row"><span class="k">PLAN</span><b id="billPlan">—</b></div>
+    <div class="bill-row"><span class="k">BLOCKS LEFT</span><b id="billBlocks">—</b></div>
+    <div class="bill-row"><span class="k">CLIENT</span><b id="billClient">—</b></div>
+    <div class="bill-actions">
+      <button class="btn" onclick="billingAction('pause')">PAUSE</button>
+      <button class="btn ok" onclick="billingAction('resume')">RESUME</button>
+      <button class="btn" onclick="billingAction('manage')">MANAGE BILLING</button>
+    </div>
+    <div id="billMsg" class="bill-msg"></div>
+  </div>
+</section>
+
+<footer id="statusbar">
+  <div class="st"><span class="dot"></span>LIVE<b id="st_live">—</b></div>
+  <div class="st"><span class="dot"></span>MODE<b id="modePill">LOCKED</b></div>
+  <div id="sbRight"><div class="st"><span>.PRO</span><b>CLIENT</b></div></div>
+</footer>
+
+<script src="js/client.js?v=1"></script>
+</body>
+</html>

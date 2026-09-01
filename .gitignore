@@ -1,0 +1,12 @@
+# local
+*.log
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
+.idea/
+
+# deploy secrets / env (never publish)
+.env
+.env.*
