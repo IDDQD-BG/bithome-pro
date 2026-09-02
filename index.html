@@ -58,6 +58,10 @@
       <div class="pf"><span>WIN RATE</span><b id="pfWin">—</b></div>
       <div class="pf"><span>CASH</span><b id="pfCash">—</b></div>
     </div>
+    <div id="pfEmpty" class="pf-empty" hidden>
+      <span class="pf-empty-title">NO TRADING HISTORY YET</span>
+      <span class="pf-empty-sub">This account has no completed trades. Buy and sell signals will appear here once the growth account opens its first position.</span>
+    </div>
   </div>
 </section>
 
@@ -82,11 +86,19 @@
     <div class="phead"><span class="t">BILLING</span></div>
     <div class="bill-row"><span class="k">PLAN</span><b id="billPlan">—</b></div>
     <div class="bill-row"><span class="k">BLOCKS LEFT</span><b id="billBlocks">—</b></div>
+    <div class="bill-row"><span class="k">LICENSE STATUS</span><b id="billStatus">—</b></div>
     <div class="bill-row"><span class="k">CLIENT</span><b id="billClient">—</b></div>
     <div class="bill-actions">
       <button class="btn" onclick="billingAction('pause')">PAUSE</button>
       <button class="btn ok" onclick="billingAction('resume')">RESUME</button>
       <button class="btn" onclick="billingAction('manage')">MANAGE BILLING</button>
+    </div>
+    <div class="bill-sub">
+      <label class="bill-consent">
+        <input type="checkbox" id="billConsent">
+        <span>I agree to the Terms &amp; Risk Disclosure and consent to automated trading initiated by this license.</span>
+      </label>
+      <button class="btn acc" id="billSub" onclick="billingAction('subscribe')">SUBSCRIBE</button>
     </div>
     <div id="billMsg" class="bill-msg"></div>
   </div>
