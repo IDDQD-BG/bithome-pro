@@ -1,1 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05070c">
+<title>BITHOME CLIENT · ACC — Visual Mockup</title>
+<style>
+  :root {
+    --bg: #05070c;
+    --panel: #0a0f16;
+    --line: #1b2533;
+    --txt: #d7e0ea;
+    --dim: #5c6b7a;
+    --cyan: #00c2ff;
+    --green: #26d07c;
+    --red: #ff5f5f;
+    --yellow: #facc15;
+    --pink: #f472b6;
+    --mono: ui-monospace, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; }
+  body {
+    background: radial-gradient(1200px 600px at 50% -10%, #0a1420 0%, var(--bg) 55%);
+    color: var(--txt);
+    font-family: var(--mono);
+    min-height: 100vh;
+    padding-bottom: 44px;
+  }
+
+  /* ---------- cmdbar ---------- */
+  #cmdbar {
+    display: flex; align-items: center; gap: 18px;
+    padding: 12px 20px; border-bottom: 1px solid var(--line);
+    position: sticky; top: 0; background: rgba(5,7,12,.92);
+    backdrop-filter: blur(6px); z-index: 10;
+  }
+  .brand { font-weight: 700; letter-spacing: 1px; font-size: 16px; }
+  .brand .hl { color: var(--cyan); }
+  .brand small { display: block; font-size: 10px; color: var(--dim); font-weight: 400; letter-spacing: 2px; }
+  #spacer { flex: 1; }
+  .tabs { display: flex; gap: 6px; }
+  .tab {
+    background: transparent; border: 1px solid var(--line); color: var(--dim);
+    padding: 7px 14px; font-family: var(--mono); font-size: 11px;
+    letter-spacing: 1px; cursor: pointer;
+  }
+  .tab.on { color: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 0 1px rgba(0,194,255,.25) inset; }
+  #authBox { display: flex; align-items: center; gap: 8px; position: relative; }
+  #keyInput {
+    background: #0a0f16; border: 1px solid var(--line); color: var(--txt);
+    padding: 8px 10px; font-family: var(--mono); font-size: 12px;
+    width: 220px; letter-spacing: 1px;
+  }
+  #authBtn {
+    background: var(--cyan); border: none; color: #04131c;
+    font-family: var(--mono); font-weight: 700; padding: 8px 14px;
+    font-size: 11px; letter-spacing: 1px; cursor: pointer;
+  }
+  #authMsg { position: absolute; top: calc(100% + 6px); right: 0; font-size: 11px; white-space: nowrap; color: var(--green); }
+
+  /* ---------- views ---------- */
+  .view { padding: 24px 20px; max-width: 1080px; margin: 0 auto; }
+
+  /* HOME hero */
+  .state-hero {
+    background: linear-gradient(180deg, #0d1520 0%, var(--panel) 100%);
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 34px 32px; position: relative; overflow: hidden;
+    text-align: center;
+  }
+  .state-hero::before {
+    content: ""; position: absolute; inset: 0;
+    background: radial-gradient(420px 180px at 50% -40%, rgba(0,194,255,.14), transparent 70%);
+    pointer-events: none;
+  }
+  .st-label { font-size: 11px; letter-spacing: 5px; color: var(--dim); }
+  .st-badge {
+    display: inline-block; margin: 14px auto 6px; padding: 6px 16px;
+    border: 1px solid rgba(0,194,255,.45); border-radius: 20px;
+    color: var(--cyan); font-size: 12px; letter-spacing: 3px;
+    background: rgba(0,194,255,.06); box-shadow: 0 0 18px rgba(0,194,255,.18);
+  }
+  .st-line { font-size: 42px; font-weight: 700; letter-spacing: 3px; color: var(--cyan); }
+  .st-gate {
+    margin: 18px auto 4px; width: max-content; font-size: 11px;
+    letter-spacing: 2px; padding: 5px 14px; border: 1px solid var(--line);
+    border-radius: 6px; color: var(--dim);
+  }
+  .st-gate .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: var(--green); margin-right: 8px; box-shadow: 0 0 10px var(--green); }
+
+  .hero-grid { display: grid; grid-template-columns: 1fr 180px 180px; gap: 16px; margin-top: 26px; align-items: stretch; }
+  .hero-plot, .hero-dial {
+    background: #07101a; border: 1px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; text-align: left; position: relative;
+  }
+  .hp-title, .dial-title { font-size: 9px; letter-spacing: 2px; color: var(--dim); margin-bottom: 8px; }
+  .hp-title b { color: var(--txt); }
+
+  /* equity sparkline */
+  .spark { display: block; width: 100%; height: 74px; }
+  .leg { display: flex; gap: 12px; font-size: 9px; color: var(--dim); letter-spacing: 1px; margin-top: 8px; }
+  .leg i { font-style: normal; width: 9px; height: 9px; display: inline-block; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+  .leg .g { background: var(--green); }
+  .leg .r { background: var(--red); }
+
+  /* gauge + dial */
+  .gauge-wrap { display: flex; flex-direction: column; align-items: center; }
+  .dial-val { margin-top: -44px; font-size: 22px; font-weight: 700; color: var(--yellow); }
+  .conf-val { margin-top: -40px; font-size: 18px; font-weight: 700; color: var(--cyan); }
+  .dial-cap { font-size: 9px; letter-spacing: 2px; color: var(--dim); margin-top: 22px; }
+  .risk-tag { font-size: 11px; letter-spacing: 2px; color: var(--yellow); margin-top: 4px; }
+
+  /* ---------- tiles row (PORTFOLIO tab surface) ---------- */
+  .section-title { font-size: 12px; letter-spacing: 3px; color: var(--dim); margin: 30px 0 14px; }
+  .pf-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
+  .pf {
+    background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+    padding: 16px 14px;
+  }
+  .pf span { display: block; font-size: 9px; letter-spacing: 2px; color: var(--dim); margin-bottom: 8px; }
+  .pf b { font-size: 20px; letter-spacing: 1px; }
+  .pf .pos { color: var(--green); }
+  .pf .neg { color: var(--red); }
+
+  .pf-double { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+
+  /* activity */
+  .panel {
+    background: var(--panel); border: 1px solid var(--line);
+    border-radius: 10px; padding: 18px 20px;
+  }
+  .phead { border-bottom: 1px solid var(--line); padding-bottom: 10px; margin-bottom: 14px; }
+  .phead .t { font-size: 11px; letter-spacing: 3px; color: var(--dim); }
+  .phead .t b { color: var(--txt); }
+  .act-list { display: flex; flex-direction: column; gap: 8px; }
+  .act-item {
+    display: grid; grid-template-columns: 90px 110px 1fr 130px;
+    align-items: center; gap: 12px; padding: 9px 12px;
+    background: #07101a; border: 1px solid var(--line); border-radius: 8px;
+    font-size: 11px;
+  }
+  .action { font-weight: 700; letter-spacing: 1px; }
+  .action.BUY { color: var(--green); }
+  .action.SELL { color: var(--red); }
+  .when { color: var(--dim); text-align: right; }
+  .pnl.pos { color: var(--green); }
+  .pnl.neg { color: var(--red); }
+
+  /* billing block meter */
+  .meter-row { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
+  .meter {
+    flex: 1; height: 12px; background: #07101a; border: 1px solid var(--line);
+    border-radius: 6px; overflow: hidden;
+  }
+  .meter-fill { width: 68%; height: 100%; background: linear-gradient(90deg, var(--cyan), var(--green)); }
+  .meter-num { font-size: 11px; color: var(--dim); white-space: nowrap; }
+  .bill-row { display: flex; gap: 12px; margin-top: 10px; font-size: 12px; }
+  .bill-row .k { color: var(--dim); width: 170px; letter-spacing: 1px; }
+  .bill-row b { color: var(--txt); }
+
+  /* buttons surface */
+  .btn-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+  .btn {
+    background: transparent; border: 1px solid var(--line); color: var(--txt);
+    padding: 9px 16px; font-family: var(--mono); font-size: 11px;
+    letter-spacing: 1px; border-radius: 6px; cursor: default;
+  }
+  .btn.acc { background: var(--cyan); border-color: var(--cyan); color: #04131c; font-weight: 700; }
+  .btn.ok { border-color: var(--green); color: var(--green); }
+  .btn.bill { border-color: var(--line); color: var(--dim); }
+
+  /* statusbar */
+  #statusbar {
+    position: fixed; bottom: 0; left: 0; right: 0; height: 36px;
+    display: flex; align-items: center; gap: 22px; padding: 0 20px;
+    background: rgba(5,7,12,.94); border-top: 1px solid var(--line); z-index: 20;
+  }
+  .st { font-size: 10px; letter-spacing: 1px; color: var(--dim); display: flex; align-items: center; gap: 8px; }
+  .st .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .st .dot.on { background: var(--green); box-shadow: 0 0 8px var(--green); }
+  .st b { color: var(--txt); }
+  #sbRight { margin-left: auto; color: var(--cyan); font-size: 11px; letter-spacing: 2px; }
+
+  .mock-note {
+    position: fixed; z-index: 40; top: 14px; left: 50%; transform: translateX(-50%);
+    background: rgba(0,0,0,.7); border: 1px solid var(--line); color: var(--dim);
+    font-size: 10px; letter-spacing: 2px; padding: 6px 14px; border-radius: 20px;
+    pointer-events: none;
+  }
+</style>
+</head>
+<body>
+
+<div class="mock-note">VISUAL MOCKUP · NO LIVE DATA · PREVIEW ONLY</div>
+
+<!-- ───────────── COMMAND BAR ───────────── -->
+<header id="cmdbar">
+  <div class="brand">BITHOME<span class="hl">.CLIENT</span><small>GROWTH ACCOUNT · AUTOMATED</small></div>
+  <nav class="tabs">
+    <button class="tab on">HOME</button>
+    <button class="tab">PORTFOLIO</button>
+    <button class="tab">ACTIVITY</button>
+    <button class="tab">BILLING</button>
+  </nav>
+  <div id="spacer"></div>
+  <div id="authBox">
+    <input id="keyInput" type="text" value="BQ-1EC6-1CA5-9226" disabled>
+    <button id="authBtn">CONNECT</button>
+    <div id="authMsg">CONNECTED · PRO</div>
+  </div>
+</header>
+
+<!-- ───────────── HOME ───────────── -->
+<div class="view">
+
+  <section class="state-hero">
+    <div class="st-label">SYSTEM STATE</div>
+    <div class="st-badge">AUTOMATED · LINEAR</div>
+    <div class="st-line">NORMAL</div>
+    <div class="st-gate"><span class="dot"></span>RISK GATE OPEN · SYSTEM ACTIVE</div>
+
+    <div class="hero-grid">
+      <!-- Equity sparkline -->
+      <div class="hero-plot">
+        <div class="hp-title">REALIZED <b>P&amp;L</b> &nbsp;·&nbsp; CUMULATIVE</div>
+        <svg class="spark" viewBox="0 0 340 74" preserveAspectRatio="none">
+          <defs>
+            <linearGradient id="areaG" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="rgba(38,208,124,.35)"/>
+              <stop offset="100%" stop-color="rgba(38,208,124,0)"/>
+            </linearGradient>
+          </defs>
+          <path d="M0,58 L24,52 L48,55 L72,44 L96,40 L120,46
+                   L144,34 L168,30 L192,20 L216,24 L240,14 L264,26 L288,10 L312,6 L340,4 L340,74 L0,74 Z"
+                fill="url(#areaG)"/>
+          <polyline points="0,58 24,52 48,55 72,44 96,40 120,46
+                            144,34 168,30 192,20 216,24 240,14 264,26 288,10 312,6 340,4"
+                    fill="none" stroke="var(--green)" stroke-width="2"/>
+        </svg>
+        <div class="leg">
+          <span><i class="g"></i>EQUITY CURVE</span>
+          <span><i class="r"></i>LAST 15 ROUND TRIPS</span>
+          <span style="margin-left:auto">+2.41%</span>
+        </div>
+      </div>
+
+      <!-- Risk gauge -->
+      <div class="hero-dial gauge-wrap">
+        <div class="dial-title">MARKET RISK</div>
+        <svg viewBox="0 0 120 104" width="132" height="114">
+          <path d="M12 86 A48 48 0 0 1 108 86" fill="none" stroke="#14202e" stroke-width="9" stroke-linecap="round"/>
+          <path d="M12 86 A48 48 0 0 1 78 44" fill="none" stroke="var(--yellow)" stroke-width="9" stroke-linecap="round"/>
+          <path d="M60 86 L72 34" stroke="var(--yellow)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="60" cy="86" r="7" fill="var(--panel)" stroke="var(--yellow)" stroke-width="3"/>
+        </svg>
+        <div class="dial-val">MED</div>
+        <div class="risk-tag">MEDIUM RISK</div>
+        <div class="dial-cap">NORMALIZED · DISPLAY ONLY</div>
+      </div>
+
+      <!-- Confidence dial -->
+      <div class="hero-dial gauge-wrap">
+        <div class="dial-title">SIGNAL CONFIDENCE</div>
+        <svg viewBox="0 0 120 104" width="132" height="114">
+          <path d="M12 86 A48 48 0 0 1 108 86" fill="none" stroke="#14202e" stroke-width="9" stroke-linecap="round"/>
+          <path d="M12 86 A48 48 0 0 1 100 76" fill="none" stroke="var(--cyan)" stroke-width="9" stroke-linecap="round"/>
+          <path d="M60 86 L84 28" stroke="var(--cyan)" stroke-width="4" stroke-linecap="round"/>
+          <circle cx="60" cy="86" r="7" fill="var(--panel)" stroke="var(--cyan)" stroke-width="3"/>
+        </svg>
+        <div class="conf-val">72%</div>
+        <div class="risk-tag">CONFIDENCE</div>
+        <div class="dial-cap">NORMALIZED · DISPLAY ONLY</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ───────────── PORTFOLIO ───────────── -->
+  <div class="section-title">PORTFOLIO</div>
+  <div class="pf-grid">
+    <div class="pf"><span>EQUITY</span><b>$128,450.20</b></div>
+    <div class="pf"><span>BTC HELD</span><b>0.48213007</b></div>
+    <div class="pf"><span>REALIZED PNL</span><b class="pos">+2.41%</b></div>
+    <div class="pf"><span>TRADES</span><b>26</b></div>
+    <div class="pf"><span>WIN RATE</span><b class="pos">64.3%</b></div>
+    <div class="pf"><span>CASH</span><b>$91,120.55</b></div>
+  </div>
+
+  <!-- ───────────── ACTIVITY ───────────── -->
+  <div class="section-title">ACTIVITY · RECENT ACTIONS</div>
+  <div class="panel">
+    <div class="phead"><span class="t">RECENT <b>ACTIONS</b></span></div>
+    <div class="act-list">
+      <div class="act-item"><span class="action BUY">▲ BUY</span><span>$79,622.12</span><span>entry · scale-in</span><span class="when">06.09 · 14:22</span></div>
+      <div class="act-item"><span class="action SELL">▼ SELL</span><span>$79,887.40</span><span class="pnl pos">+1.41%</span><span class="when">06.09 · 09:05</span></div>
+      <div class="act-item"><span class="action BUY">▲ BUY</span><span>$78,845.00</span><span>entry · pyramiding</span><span class="when">05.09 · 23:40</span></div>
+      <div class="act-item"><span class="action SELL">▼ SELL</span><span>$78,266.11</span><span class="pnl pos">+0.92%</span><span class="when">05.09 · 18:11</span></div>
+      <div class="act-item"><span class="action SELL">▼ SELL</span><span>$77,596.01</span><span class="pnl pos">+0.87%</span><span class="when">05.09 · 02:18</span></div>
+    </div>
+  </div>
+
+  <!-- ───────────── BILLING ───────────── -->
+  <div class="section-title">BILLING</div>
+  <div class="panel">
+    <div class="phead"><span class="t">PLAN · <b>PRO</b></span></div>
+    <div class="meter-row">
+      <span style="font-size:10px;letter-spacing:2px;color:var(--dim)">BLOCKS LEFT</span>
+      <div class="meter"><div class="meter-fill"></div></div>
+      <span class="meter-num">1,024 / 1,500</span>
+    </div>
+    <div class="bill-row"><span class="k">PLAN</span><b>PRO</b></div>
+    <div class="bill-row"><span class="k">LICENSE STATUS</span><b>ACTIVE</b></div>
+    <div class="bill-row"><span class="k">CLIENT</span><b>client-checkout</b></div>
+    <div class="btn-row">
+      <button class="btn bill">PAUSE</button>
+      <button class="btn ok">RESUME</button>
+      <button class="btn bill">MANAGE BILLING</button>
+      <button class="btn acc">SUBSCRIBE</button>
+    </div>
+  </div>
+
+</div>
+
+<!-- ───────────── STATUS BAR ───────────── -->
+<footer id="statusbar">
+  <div class="st"><span class="dot on"></span>LIVE<b>CONNECTED</b></div>
+  <div class="st"><span class="dot on"></span>MODE<b>AUTO</b></div>
+  <div class="st"><span class="dot on"></span>HEIGHT<b>965,065</b></div>
+  <div id="sbRight">BITHOME<span style="color:var(--dim)">.CLIENT</span></div>
+</footer>
+
+</body>
+</html>
 
