@@ -269,6 +269,7 @@ async function pollPending(m) {
         localStorage.removeItem(LS_PENDING);
         KEY = pend;
         localStorage.setItem(LS_KEY, pend);
+        el("keyInput").value = KEY;
         AUTHD = true;
         authMsg("ok", "CONNECTED · " + (d.plan || "PRO").toUpperCase());
         document.body.classList.add("authed");
@@ -294,6 +295,7 @@ async function armPending() {
       localStorage.removeItem(LS_PENDING);
       KEY = pend;
       localStorage.setItem(LS_KEY, pend);
+      el("keyInput").value = KEY;
       AUTHD = true;
       authMsg("ok", "CONNECTED · " + (d.plan || "PRO").toUpperCase());
       document.body.classList.add("authed");
