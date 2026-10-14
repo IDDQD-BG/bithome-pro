@@ -84,7 +84,11 @@ async function connect() {
     renderBilling(d);
     startPoll();
   } catch (e) {
-    authMsg("err", e.status === 401 ? "invalid or expired license" : e.message);
+    if (e.status === 401 && localStorage.getItem(LS_PENDING) && localStorage.getItem(LS_PENDING) !== KEY) {
+      armPending();
+    } else {
+      authMsg("err", e.status === 401 ? "invalid or expired license" : e.message);
+    }
   } finally {
     el("authBtn").disabled = false;
   }
@@ -127,7 +131,6 @@ function logout() {
   AUTHD = false;
   if (tPoll) { clearInterval(tPoll); tPoll = null; }
   localStorage.removeItem(LS_KEY);
-  localStorage.removeItem(LS_PENDING);
   KEY = "";
   el("keyInput").value = "";
   setMode("LOCKED", "");
@@ -242,7 +245,8 @@ async function startCheckout(m) {
       client: KEY || "client-checkout",
     });
     localStorage.setItem(LS_PENDING, d.license_key);
-    billMsg(m, "ok", "payment pending — you can finish checkout in the new tab. Waiting for activation…");
+    showPendingKey(d.license_key);
+    billMsg(m, "ok", "your license key: " + d.license_key + " — finish checkout in the new tab. Waiting for activation…");
     if (btn) setSubBtn("SUBSCRIBING…");
     const w = window.open(d.checkout_url, "_blank");
     if (!w) billMsg(m, "err", "popup blocked — enable popups or open the Stripe tab manually");
@@ -253,63 +257,69 @@ async function startCheckout(m) {
   }
 }
 
-function stopPoll() {
-  if (tPoll) { clearInterval(tPoll); tPoll = null; }
+let tPend = null;
+const PEND_MAX_MS = 15 * 60 * 1000;
+
+function stopPendPoll() {
+  if (tPend) { clearInterval(tPend); tPend = null; }
 }
 
-async function pollPending(m) {
-  if (tPoll) return;
+function showPendingKey(k) {
+  if (!k) return;
+  const inp = el("keyInput");
+  if (inp) inp.value = k;
+  authMsg("", "license key " + k + " · waiting for payment confirmation…");
+}
+
+function activateWith(key, d, m) {
+  stopPendPoll();
+  localStorage.removeItem(LS_PENDING);
+  KEY = key;
+  localStorage.setItem(LS_KEY, key);
+  el("keyInput").value = KEY;
+  AUTHD = true;
+  authMsg("ok", "CONNECTED · " + (d.plan || "PRO").toUpperCase() + " · KEY " + key);
+  document.body.classList.add("authed");
+  renderState(d);
+  renderPortfolio(d);
+  renderActivity(d);
+  renderBilling(d);
+  startPoll();
+  if (m) billMsg(m, "ok", "activated — you are CONNECTED · save your key: " + key);
+}
+
+/* pending key returns 401 until invoice.paid activates it — keep polling through 401 and transient errors */
+function pollPending(m) {
+  if (tPend) return;
   const pend = localStorage.getItem(LS_PENDING);
   if (!pend) return;
-  tPoll = setInterval(async () => {
+  showPendingKey(pend);
+  const t0 = Date.now();
+  const tick = async () => {
+    if (Date.now() - t0 > PEND_MAX_MS) {
+      stopPendPoll();
+      setSubBtn("SUBSCRIBE");
+      billMsg(m, "err", "activation not confirmed yet · your key: " + pend + " · press CONNECT later or write to support@bithome.pro");
+      return;
+    }
     try {
       const d = await api("/api/client/state", { key: pend });
-      if (d && d.status === "active") {
-        stopPoll();
-        localStorage.removeItem(LS_PENDING);
-        KEY = pend;
-        localStorage.setItem(LS_KEY, pend);
-        el("keyInput").value = KEY;
-        AUTHD = true;
-        authMsg("ok", "CONNECTED · " + (d.plan || "PRO").toUpperCase());
-        document.body.classList.add("authed");
-        renderState(d);
-        renderPortfolio(d);
-        renderActivity(d);
-        renderBilling(d);
-        startPoll();
-        if (m) billMsg(m, "ok", "activated — you are CONNECTED");
-      }
-    } catch (e) {
-      if (e.status !== 401) { stopPoll(); }
-    }
-  }, 5000);
+      if (d && d.status === "active") activateWith(pend, d, m);
+    } catch (e) { /* 401 = still pending; 5xx/network = retry */ }
+  };
+  tPend = setInterval(tick, 4000);
+  tick();
 }
 
 async function armPending() {
   const pend = localStorage.getItem(LS_PENDING);
   if (!pend) return;
+  showPendingKey(pend);
   try {
     const d = await api("/api/client/state", { key: pend });
-    if (d && d.status === "active") {
-      localStorage.removeItem(LS_PENDING);
-      KEY = pend;
-      localStorage.setItem(LS_KEY, pend);
-      el("keyInput").value = KEY;
-      AUTHD = true;
-      authMsg("ok", "CONNECTED · " + (d.plan || "PRO").toUpperCase());
-      document.body.classList.add("authed");
-      renderState(d);
-      renderPortfolio(d);
-      renderActivity(d);
-      renderBilling(d);
-      startPoll();
-    } else {
-      pollPending(el("billMsg"));
-    }
-  } catch (e) {
-    pollPending(el("billMsg"));
-  }
+    if (d && d.status === "active") { activateWith(pend, d, el("billMsg")); return; }
+  } catch (e) { /* still pending */ }
+  pollPending(el("billMsg"));
 }
 
 /* ---------- tabs ---------- */
@@ -325,8 +335,16 @@ function boot() {
   const inp = el("keyInput");
   inp.value = KEY;
   inp.addEventListener("keydown", (e) => { if (e.key === "Enter") connect(); });
-  if (KEY) connect();
-  else if (localStorage.getItem(LS_PENDING)) armPending();
+  const qs = new URLSearchParams(location.search);
+  const back = qs.has("payment") || qs.has("session_id");
+  if (back) {
+    const u = new URL(location.href);
+    u.search = "";
+    history.replaceState(null, "", u.toString());
+  }
+  const pend = localStorage.getItem(LS_PENDING);
+  if (pend && (back || !KEY || pend !== KEY)) armPending();
+  else if (KEY) connect();
 }
 
 window.addEventListener("load", boot);
